@@ -1,0 +1,120 @@
+در دنیای واقعی کل شبکه های دنیا برای اینکه با هم ارتباط بر قرار کنند با استفاده از سوئیچ ها این کار انجام می شود که باید منظور Ethernet basic را بدانیم
+Ethernet basic
+Ethernet basic:پرتکلی هست که برای شبکه های lan استفاده می شود و نحوه انتقال داده ها و اطلاعات را مشخص می نماید این پرتکل 802.3 نام دارد
+Broadcast Domain محدوده ای هست که ایجاد می شود و وقتی به روتر های ما می رسد همان جا متوقف می شود 
+Collision Domain محدوده ای هست که دستگاه ها اطلاعات آنها از آن جا می گذرد و بر خودرد اطلاعات به هم دیگر به وجود می آید در این بخش فقط یک نفر می تواند اطلاعات ارسال کند و دریافت و ما بقی باید گوش دهند 
+Colision Domain بر اساس تعداد سیستم های شبکه که بر روی چه دستگاهی هستند محاسبه می گردد که بر روی روتر ها باشد یا سوئیچ ها می شود1 عد هر دستگاه ولی اگر هاب بود کل آن مجموعه می شود 1 عدد 
+برای اینکه نحوه انتقال اطلاعات درون کالیژن دامین ها را مشاده کنید می توانید به عکس CSMA.CD مراجعه کنید 
+سوئیچ ها یک قابلیتی دارند بر روی خود به نام mac table یا cam table 
+Cam Table : content addressable memory
+mac table به ما درون شبکه کمک می کند تا بسته های اطلاعاتی خود را مشخص شده بر روی پورت های خود ارسال و دریافت کنیم
+نکته:mac table ما آدرس های مک ارسالی و دریافتی را برای 5 دقیقه یا 300 ثانیه برای خود نگه می دارد و اینکه اگر بسته ای دیگر بر روی آن پورت ارسال نشد آن مک حذف خواهد شد و اینکه یک محدوده ذخیره سازی برای خود دارد 
+دستورات سوئیچ:
+Switch#show mac address-table
+با این دستور می توانیم مک های خود را مشاهده کنیم 
+بعضی مواقه ما درون شبکه خود کاربران می گویند که سرعت شبکه آنها پایین آمده پس باید بیایم پورت های خود را نگاه بی اندازیم که به چه صورت هست که half duplex نباشد
+با دستورات زیر:
+
+Switch#show interfaces gigabitEthernet 0/1
+GigabitEthernet0/1 is down, line protocol is down (disabled)
+  Hardware is Lance, address is 0001.c7b5.9519 (bia 0001.c7b5.9519)
+ BW 1000000 Kbit, DLY 1000 usec,
+     reliability 255/255, txload 1/255, rxload 1/255
+  Encapsulation ARPA, loopback not set
+  Keepalive set (10 sec)
+  Half-duplex, 1000Mb/s
+  input flow-control is off, output flow-control is off
+  ARP type: ARPA, ARP Timeout 04:00:00
+  Last input 00:00:08, output 00:00:05, output hang never
+  Last clearing of "show interface" counters never
+  Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+  Queueing strategy: fifo
+  Output queue :0/40 (size/max)
+  5 minute input rate 0 bits/sec, 0 packets/sec
+  5 minute output rate 0 bits/sec, 0 packets/sec
+     956 packets input, 193351 bytes, 0 no buffer
+     Received 956 broadcasts, 0 runts, 0 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
+     0 watchdog, 0 multicast, 0 pause input
+     0 input packets with dribble condition detected
+     2357 packets output, 263570 bytes, 0 underruns
+     0 output errors, 0 collisions, 10 interface resets
+     0 babbles, 0 late collision, 0 deferred
+     0 lost carrier, 0 no carrier
+     0 output buffer failures, 0 output buffers swapped out
+برای اینکه این مورد را تغییر دهیم دستورات زیر را جلو می رویم:
+Switch(config-if)#duplex ?
+  auto  Enable AUTO duplex configuration
+  full  Force full duplex operation
+  half  Force half-duplex operation
+حتا می توانید سرعت پورت های خود را ببینید:
+Switch(config-if)#speed ?
+  10    Force 10 Mbps operation
+  100   Force 100 Mbps operation
+  1000  Force 1000 Mbps operation
+  auto  Enable AUTO speed configuration
+پرتکل های CDP,LLDP
+CDP:Cisco Discovery Protocol
+LLDP:Link Layer Discovery Protocol
+CDP:می آید وضعیت توپولوژی های شبکه را مشاهده می نماید که به چه صورت هست و نحوه اتصالات آنها درون شبکه را مشاهده می کند با استفاده از همسایه ها 
+دستورات :
+Switch#show cdp
+Global CDP information:
+    Sending CDP packets every 60 seconds
+    Sending a holdtime value of 180 seconds
+    Sending CDPv2 advertisements is enabled
+به ما می گوید هر 60ثانیه بسته  های تحت عنوان hello دریافت می کند درون شبکه که که در نزدیکی خود چه نوع دستگاه های دیگر به شبکه ما متصل هست
+Switch#show cdp neighbors 
+Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
+                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone
+Device ID    Local Intrfce   Holdtme    Capability   Platform    Port ID
+Switch       Fas 0/5          130            S       2960        Fas 0/1
+شما حتا می توانید اطلاعات بیشتری دریافت کنید 
+Switch#show cdp neighbors detail 
+
+Device ID: Switch
+Entry address(es): 
+Platform: cisco 2960, Capabilities: Switch
+Interface: FastEthernet0/5, Port ID (outgoing port): FastEthernet0/1
+Holdtime: 121
+
+Version :
+Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 15.0(2)SE4, RELEASE SOFTWARE (fc1)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2013 by Cisco Systems, Inc.
+Compiled Wed 26-Jun-13 02:49 by mnguyen
+
+advertisement version: 2
+Duplex: full
+اگر هم یک زمانی تعدا cdp ها آنجا زیاد بود می توانید آنها را با دستور زیر فیلتر کنید:
+Switch#show cdp neighbors gigabitEthernet 0/5 detail که این دستور درن packet tracer وجود ندارد
+اگر این پرتکل فعال نبود دستورات زیر را بزنید:
+Switch(config)#cdp run اما پیش فرض این پرتکل بر روی سیستم ما فعال هست
+Switch(config)#no cdp run برای غیر فعال کردن آن هست
+شما می تونید بر روی یکی از پورت های خود رفته و ان را غیر فعال کنید
+Switch(config-if)#no cdp enable
+نکته:از لحاظ امنیت م یگویند آنجای که به این پرتکل نیاز ندارید آنجا این پرتکل را غیر فعال نمائید
+LLDP:هم مثل این پرتکل CDP عمل می کند ولی بر روی همه تجهیزات دیگر هم هست و وجود دارد که یم توانیم عمل شناسای را اعمال کنیم و بر روی پورت های lan کار نمی کند 
+دستورات:
+Switch#show lldp 
+% LLDP is not enabled
+Switch(config)#lldp run برای فعال کردن
+Switch(config-if)#lldp transmit برای فعال کردن بر روی یکی از پورت ها
+Switch(config-if)#no lldp transmit برای غیر فعال کردن بر روی یک از پورت ها
+Global LLDP Information:
+    Status: ACTIVE
+    LLDP advertisements are sent every 30 seconds
+    LLDP hold time advertised is 120 seconds
+    LLDP interface reinitialisation delay is 2 seconds
+
+Switch#show lldp neighbors 
+Capability codes:
+    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+Device ID           Local Intf     Hold-time  Capability      Port ID
+
+Total entries displayed: 0
+
+شما می تونید دستور شو کم سوئیچ های خود را فیلتر نمائید که بر روی سو ئیچ های خود بر روی کدام سوئیچ چه دستگاهی فعال هست 
+Switch#show mac-address-table | include 00e0.f727.0501 بر اساس مک آن دستگاه
+Switch#show mac-address-table count بر اساس تعداد مگ های دستگاه ها

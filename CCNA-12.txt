@@ -1,0 +1,311 @@
+مدل های مختلف STP
+Commen Spanning Tree (CST)
+IEEE 802.1d
+یک درخت STP براي کل شبکه
+این پرتکل محدودیت های دارد و می آمد شبک ما را به صورت درختی درمی آورد
+Per VLAN Spanning Tree Plus (PVST+)
+به ازاي هر VLAN یک پردازش STP
+نکته:در سوئیچ های سیسکو این پرتکل پیش فرض فعال هست و با نام PVST+ هست در این پرتکل برای هر پورت یک وی لن ایجاد می شود و بر روی هر وی لن این پرتکل انجام می شود 
+نکته:شما باید سوئیچ مورد نظر به عنوان سرور قرار بگیرد یعنی آن سوئیچی که پورت های ان فعال و دوطرفه باشد درون عکس پروژه مفوم هست
+دستورات:
+نکته:اول باید بدانیم کدام یک از سوئیچ های ما به ححالت روت رفته بعد وارد آن می شویم
+Switch#show running-config 
+Building configuration...
+
+Current configuration : 1080 bytes
+!
+version 15.0
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname Switch
+!
+!
+!
+!
+!
+!
+"spanning-tree mode pvst"
+spanning-tree extend system-id
+!
+شما با این دستور می توانید متوجه بشید که پرتکل pvst فعال هست بر روی این سوئیچ
+با دستور زیر می توانید مشاهده نمائید که وضعیت stp های شما چگونه است
+Switch#show spanning-tree 
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     0001.C7C3.D194
+             This bridge is the root
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
+             Address     0001.C7C3.D194
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  20
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+Fa0/1            Desg FWD 19        128.1    P2p
+Fa0/2            Desg FWD 19        128.2    P2p
+نکته:ما برای اینکه بخواهیم سوئیچ های خود را پورت های بین آنها را ترانک کنیم فقط کافی است آن سوئیچ روت را پورت های آن را ترانک کنیم , و آن سوئیچ یکه به یک جای دیگر متصل هست و پورت آن یکی از آن بلاک هست 
+شما می توانید بر اساس وی لنی که می خواهید آن سوئیچ را ببینید:
+Switch#show spanning-tree vlan 2 priority 4096
+VLAN0002
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32770
+             Address     0001.C7C3.D194
+             This bridge is the root
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32770  (priority 32768 sys-id-ext 2)
+             Address     0001.C7C3.D194
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  20
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+Fa0/1            Desg FWD 19        128.1    P2p
+Fa0/4            Desg FWD 19        128.4    P2p
+Fa0/2            Desg FWD 19        128.2    P2p
+شما می توانید آن سوئیچ ککه به شما نزدیک تر است برای دسترسی به وی لن مقصد خود می آید آن را به صورت روت قرار می دهید با دستورات زیر:
+Switch(config)#spanning-tree vlan 2 ?
+  priority  Set the bridge priority for the spanning tree
+  root      Configure switch as root
+  <cr>
+Switch(config)#spanning-tree vlan 2 priority ?
+  <0-61440>  bridge priority in increments of 4096
+Switch(config)#spanning-tree vlan 2 priority 4096
+بعد از اینکه آن سوئیچ دیگری را به حالت روت قرار داید م یآید آن یکی سوئیچ دیگر را هم به آن مشخص می نمائید
+Switch(config)#spanning-tree vlan 2
+Switch#show spanning-tree 
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     0001.C7C3.D194
+             Cost        19
+             Port        2(FastEthernet0/2)
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
+             Address     00E0.A3A7.D02D
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  20
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+Fa0/3            Desg FWD 19        128.3    P2p
+Fa0/1            Altn BLK 19        128.1    P2p
+Fa0/2            Root FWD 19        128.2    P2p
+Fa0/4            Desg FWD 19        128.4    P2p
+
+VLAN0002
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    4098
+             Address     0090.0CC9.154B
+             Cost        38
+             Port        2(FastEthernet0/2)
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32770  (priority 32768 sys-id-ext 2)
+             Address     00E0.A3A7.D02D
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  20
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+Fa0/2            Root FWD 19        128.2    P2p
+یا این کار ما پورت های که پورت بلاک هست را فعال کرده و هر پورتی را برای یکی از وی لن ها قرار گرفته ایم
+Switch(config)#spanning-tree vlan 2 root primary 
+primary : می آید برای ما مقدار عددی که پیش فرض می داند که کدام سوئیچ کمترین میزان پردازش را قرار گرفته مقدار عدد را وارد می نماید
+Switch(config)#spanning-tree vlan 2 root ?
+  primary    Configure this switch as primary root for this spanning tree
+  secondary  Configure switch as secondary root
+secondary: می آید وقتی سوئیچ ما یه حالت فلاد قرار گرفت بر اساس بازه زمانی می آید کار ارسال و دریفت را می کند
+می توانید حتا مقدار port praivety , cust را تغییر دهید:
+برای اینکار باید بروید بر روی پورت مورد نظر:
+Switch(config-if)#spanning-tree vlan 2 ?
+  cost           Change an interface's spanning tree port path cost
+  port-priority  Change an interface's spanning tree port priority
+Switch(config-if)#spanning-tree vlan 2 port-priority ?
+  <0-240>  port priority in increments of 16
+Switch(config-if)#spanning-tree vlan 2 cost ?
+  <1-200000000>  Change an interface's per VLAN spanning tree path cost
+SW#show spanning-tree root می تواند روت بریدج ها را به ما نمایش دهد 
+Switch#show spanning-tree blockedports پورت های بلاک ما را نشان می دهد 
+Switch#show spanning-tree summary اطلاعات کلی از پرتکل را به ما نمایش می دهد 
+Switch is in pvst mode
+Root bridge for: V-2
+Extended system ID           is enabled
+Portfast Default             is disabled
+PortFast BPDU Guard Default  is disabled
+Portfast BPDU Filter Default is disabled
+Loopguard Default            is disabled
+EtherChannel misconfig guard is disabled
+UplinkFast                   is disabled
+BackboneFast                 is disabled
+Configured Pathcost method used is short
+
+Name                   Blocking Listening Learning Forwarding STP Active
+---------------------- -------- --------- -------- ---------- ----------
+VLAN0001                     1         0        0          3          4
+VLAN0002                     0         0        0          1          1
+
+---------------------- -------- --------- -------- ---------- ----------
+2 vlans                      1         0        0          4          5
+می توانید بر روی یک پورت هم ببینید:
+Switch#show spanning-tree interface fastEthernet 0/1
+Vlan             Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+VLAN0001         Altn BLK 19        128.1     P2p
+VLAN0002         19        128.1     P2p
+پرتکل اختصاصی سیسکو:
+Portfast
+معمولا بر روی پورت های که دیوایس های شبکه متصل هستند این کار ار انجام می دهد
+SW(config-if)#spanning-tree portfast
+SW(config)#spanning-tree portfast default
+
+Switch(config)#interface fastEthernet 0/5
+Switch(config-if)#spanning-tree portfast 
+%Warning: portfast should only be enabled on ports connected to a single
+host. Connecting hubs, concentrators, switches, bridges, etc... to this
+interface  when portfast is enabled, can cause temporary bridging loops.
+Use with CAUTION
+
+%Portfast has been configured on FastEthernet0/5 but will only
+have effect when the interface is in a non-trunking mode.
+با این کار دیگر فراید خواندن بلاک کردن و.. را رد می مائیم
+می توانیم تمام پورت های خود را هم به صورت خود کار این کار را بر روی آن انجام دهیم:
+SW(config)#spanning-tree portfast default
+پرتکل بعدی برای بهبود پرتکل 802.1d هست 
+Rapid PVST+ (RPVST+)
+Rapid STP (IEEE 802.1w)
+Port status
+Discarding
+Learning
+Forwarding
+Port Rule
+Root port
+Designated port
+Alternate port اگر مشکلی برای روت پورت ما به مشکل بخورد این می آید جایگزین می شود
+Backup port این هم همین گونه ولی برای Designated port هست 
+Disabled port
+Edge port پورتی هست که دیوایس های شبکه متصل هست 
+SW(config)#spanning-tree mode rapid-pvst
+پرتکل بعدی برای محافظت از پرتکل BPDU ما هست
+BPDU Guard
+SW(config-if)#spanning-tree bpduguard enable
+این پرتکل زمانی به درد ما می خورد که اگر یک سوئیچ به شبکه ما متصل شود می تواند شبکه مار اتو پولوژی آن را تغییر دهد پس این کار را بر روی سوئیچ های خود انجام می دهیم
+Switch(config)#interface fastEthernet 0/5
+SW(config-if)#spanning-tree bpduguard enable
+#############################################
+SW-1#show spanning-tree 
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     0004.9A46.39C6
+             This bridge is the root
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
+             Address     0004.9A46.39C6
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  20
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+Fa0/1            Desg FWD 19        128.1    P2p
+Fa0/2            Desg FWD 19        128.2    P2p
+می آیم برای خود چند دیوایس به سوئیچ های خود متصل می نمائیم
+SW-1#show spanning-tree 
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     0004.9A46.39C6
+             This bridge is the root
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
+             Address     0004.9A46.39C6
+             Hello Time  2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  20
+
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+Fa0/1            Desg FWD 19        128.1    P2p
+Fa0/2            Desg FWD 19        128.2    P2p
+Fa0/3            Desg FWD 19        128.3    P2p
+Fa0/4            Desg FWD 19        128.4    P2p
+بعد از آی پی دادن می آیم آنها را درون وی لن های مشخص قرار می دهیم
+
+SW-2:
+SW-2(config)#vlan 2
+SW-2(config)#interface vlan 2
+%LINK-5-CHANGED: Interface Vlan2, changed state to up
+SW-2(config)#interface fastEthernet 0/4
+SW-2(config-if)#switchport mode access 
+SW-2(config-if)#switchport access vlan 2
+%LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan2, changed state to up
+SW-2#show vlan brief 
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/1, Fa0/2, Fa0/3, Fa0/5
+                                                Fa0/6, Fa0/7, Fa0/8, Fa0/9
+                                                Fa0/10, Fa0/11, Fa0/12, Fa0/13
+                                                Fa0/14, Fa0/15, Fa0/16, Fa0/17
+                                                Fa0/18, Fa0/19, Fa0/20, Fa0/21
+                                                Fa0/22, Fa0/23, Fa0/24, Gig0/1
+                                                Gig0/2
+2    V-2                              active    Fa0/4
+1002 fddi-default                     active    
+1003 token-ring-default               active    
+1004 fddinet-default                  active    
+1005 trnet-default                    active    
+
+SW-3:
+SW-3(config)#vlan 2
+SW-3(config-vlan)#name V-2
+SW-3(config)#interface vlan 2
+%LINK-5-CHANGED: Interface Vlan2, changed state to up
+SW-3(config)#interface range fastEthernet 0/3-4
+SW-3(config-if-range)#switchport mode access 
+SW-3(config-if-range)#switchport access vlan 2
+%LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan2, changed state to up
+
+روی سوئیچ روت هم این کار را انجام می دهیم
+SW-1:
+SW-1(config)#vlan 2
+SW-1(config-vlan)#name V-2
+SW-1(config)#interface vlan 2
+%LINK-5-CHANGED: Interface Vlan2, changed state to up
+می آیم پورت های متصل به سوئیچ را هم به ترانک تبدیل می نمائیم
+
+SW-1(config)#interface range fastEthernet 0/1-2
+SW-1(config-if-range)#switchport mode trunk 
+
+SW-3:
+SW-3(config)#interface fastEthernet 0/2
+SW-3(config-if)#switchport mode trunk 
+
+حال می خواهیم که این پرتکل بر روی vlan 2 عمل نکند
+می آیم سوئیچی که می خواهیم به عنوان روت قرار بگیرد را دستورات زیر را می زنیم:
+SW-3(config)#spanning-tree vlan 2 priority 4096
+عدد آخر برای گام کرحتی هست 
+اگر تخواستید این کار را انجام دهید می توانید با دستور زیر این کار را انجام دهدی که خود سوئیچ این کار را انجام دهد
+SW-3(config)#spanning-tree vlan 2 root primary 
+می توانید وارد پورت مورد نظر شده و مقدرا cust آن را تعییر دهید از 0 تا 255 هست
+SW-3(config)#interface fastEthernet 0/1
+SW-3(config-if)#spanning-tree vlan 2 port-priority ?
+  <0-240>  port priority in increments of 16
+کل دستورات زیر:
+ SW#show spanning-tree
+ SW#show spanning-tree vlan 2
+ SW#show spanning-tree root
+ SW#show spanning-tree blockedports
+ SW#show spanning-tree summary
+ SW#show spanning-tree interface gigabitEthernet 0/1
+ SW#show spanning-tree interface gigabitEthernet 0/1 detail
+ SW(config)#spanning-tree vlan 2 priority 4096
+ SW(config)#spanning-tree vlan 2 root primary
+ SW(config-if)#spanning-tree vlan 2 port-priority 16
+ SW(config-if)#spanning-tree vlan 2 cost 4

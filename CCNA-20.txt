@@ -1,0 +1,300 @@
+Code Protocol EIGRP
+می آید بر روی همه پورت های روتر های خود IP می دهید 
+نکته:توجه داشته باشید هر پورتی که به سمت خود آن هست و دارید آن را آیپی می دهید Net Id آن می شود به سمت خود آن:
+مثلا:
+R-1 > Port fas0/0 : 192.168.1."1"
+R-2 > Port fas 0/5 : 192.168.1."2"
+
+R-1:
+R-1(config)#router eigrp ?
+  <1-65535>  Autonomous system number
+توجه داشته باشید عددی که م دهید باید بر روی همه روتر های خود یکسان باشد
+R-1(config)#router eigrp 100
+R-1(config-router)#network 172.16.12.0 ?
+  A.B.C.D  EIGRP wild card bits
+  <cr>
+R-1(config-router)#network 172.16.12.0 0.0.0.255
+ما مب توانیم با استفاده از wild card مشخص کنیم کدام از بخش ip ما مهم تر است
+wild card بر عکس subnet mask هست:
+11111111.11111111.11111111.00000000
+wild card:
+00000000.00000000.00000000.11111111
+R-2:
+Router(config)#router eigrp 100
+Router(config-router)#network 172.16.0.0
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.12.1 (FastEthernet0/0) is up: new adjacency
+به محض اینکه ما این آی پی را می زنیم برای ما پیغام می اید که همسایگی خود را ایجاد کرده و درون پورت های خود هر شبکه ای که با آدرس 172.16 شروع می شود ارتباط بر قرار می کند
+با این کار دیگر لازم نیست ما بر روی هر پورت خود این آی پی را تعریف نمائیم
+R-1:
+R-1(config-router)#do show ip route
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+     10.0.0.0/24 is subnetted, 6 subnets
+C       10.1.0.0 is directly connected, Loopback1
+C       10.2.0.0 is directly connected, Loopback2
+C       10.3.0.0 is directly connected, Loopback3
+C       10.4.0.0 is directly connected, Loopback4
+C       10.5.0.0 is directly connected, Loopback5
+C       10.6.0.0 is directly connected, Loopback6
+     172.16.0.0/24 is subnetted, 8 subnets
+C       172.16.12.0 is directly connected, FastEthernet1/0
+C       172.16.13.0 is directly connected, FastEthernet6/0
+C       172.16.14.0 is directly connected, FastEthernet0/0
+D       172.16.26.0 [90/30720] via 172.16.12.2, 00:04:43, FastEthernet1/0
+C       172.16.112.0 is directly connected, Serial3/0
+C       172.16.113.0 is directly connected, Serial8/0
+C       172.16.114.0 is directly connected, Serial2/0
+C       172.16.115.0 is directly connected, Serial9/0
+D    192.168.2.0/24 [90/156160] via 172.16.12.2, 00:00:23, FastEthernet1/0
+
+R-1#show ip route eigrp 
+     172.16.0.0/24 is subnetted, 8 subnets
+D       172.16.26.0 [90/30720] via 172.16.12.2, 00:06:17, FastEthernet1/0
+D    192.168.2.0/24 [90/156160] via 172.16.12.2, 00:01:58, FastEthernet1/0
+
+R-1(config-router)#network 172.16.0.0
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.112.2 (Serial3/0) is up: new adjacency
+
+R-2:
+Router(config-router)#do show ip route
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+     172.16.0.0/16 is variably subnetted, 9 subnets, 2 masks
+D       172.16.0.0/16 is a summary, 00:03:08, Null0
+C       172.16.12.0/24 is directly connected, FastEthernet0/0
+D       172.16.13.0/24 [90/30720] via 172.16.12.1, 00:00:39, FastEthernet0/0
+D       172.16.14.0/24 [90/30720] via 172.16.12.1, 00:00:39, FastEthernet0/0
+C       172.16.26.0/24 is directly connected, FastEthernet1/0
+C       172.16.112.0/24 is directly connected, Serial2/0
+D       172.16.113.0/24 [90/20514560] via 172.16.12.1, 00:00:39, FastEthernet0/0
+D       172.16.114.0/24 [90/20514560] via 172.16.12.1, 00:00:39, FastEthernet0/0
+D       172.16.115.0/24 [90/20514560] via 172.16.12.1, 00:00:39, FastEthernet0/0
+C    192.168.2.0/24 is directly connected, Loopback1
+
+R-1:
+R-1(config-router)#no auto-summary 
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.12.2 (FastEthernet1/0) resync: summary configured
+
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.112.2 (Serial3/0) resync: summary configured
+
+R-2:
+Router(config-router)#do show ip route eigrp
+     10.0.0.0/24 is subnetted, 6 subnets
+D       10.1.0.0 [90/156160] via 172.16.12.1, 00:00:40, FastEthernet0/0
+D       10.2.0.0 [90/156160] via 172.16.12.1, 00:00:40, FastEthernet0/0
+D       10.3.0.0 [90/156160] via 172.16.12.1, 00:00:40, FastEthernet0/0
+D       10.4.0.0 [90/156160] via 172.16.12.1, 00:00:40, FastEthernet0/0
+D       10.5.0.0 [90/156160] via 172.16.12.1, 00:00:40, FastEthernet0/0
+D       10.6.0.0 [90/156160] via 172.16.12.1, 00:00:40, FastEthernet0/0
+     172.16.0.0/16 is variably subnetted, 9 subnets, 2 masks
+D       172.16.0.0/16 is a summary, 00:06:35, Null0
+D       172.16.13.0/24 [90/30720] via 172.16.12.1, 00:00:40, FastEthernet0/0
+D       172.16.14.0/24 [90/30720] via 172.16.12.1, 00:00:40, FastEthernet0/0
+D       172.16.113.0/24 [90/20514560] via 172.16.12.1, 00:00:40, FastEthernet0/0
+D       172.16.114.0/24 [90/20514560] via 172.16.12.1, 00:00:40, FastEthernet0/0
+D       172.16.115.0/24 [90/20514560] via 172.16.12.1, 00:00:40, FastEthernet0/0
+الان می بینید که همه شبکه های 10 ما را همه آنها را دارد
+
+
+R-3:
+Router(config-router)#network 172.16.0.0
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.13.1 (FastEthernet0/0) is up: new adjacency
+
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.113.1 (Serial2/0) is up: new adjacency
+
+Router(config-router)#network 192.168.3.0
+
+R-4:
+Router(config)#router eigrp 100
+Router(config-router)#network 172.16.0.0
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.14.1 (FastEthernet0/0) is up: new adjacency
+
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.114.1 (Serial2/0) is up: new adjacency
+Router(config-router)#network 192.168.4.0
+
+R-5:
+Router(config-router)#network 172.16.0.0
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.35.3 (FastEthernet1/0) is up: new adjacency
+
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.115.1 (Serial2/0) is up: new adjacency
+Router(config-router)#network 192.168.5.0
+
+R-6:
+Router(config-router)#network 172.16.0.0
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.26.2 (FastEthernet0/0) is up: new adjacency
+Router(config-router)#network 192.168.6.0
+
+R-7:
+Router(config-router)#network 172.16.0.0
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.67.6 (FastEthernet0/0) is up: new adjacency
+Router(config-router)#network 192.168.7.0
+
+R-1:
+R-1#show ip route eigrp 
+     10.0.0.0/8 is variably subnetted, 7 subnets, 2 masks
+D       10.0.0.0/8 [90/168960] via 172.16.12.2, 00:00:57, FastEthernet1/0
+     172.16.0.0/24 is subnetted, 10 subnets
+D       172.16.26.0 [90/30720] via 172.16.12.2, 00:09:16, FastEthernet1/0
+D       172.16.35.0 [90/30720] via 172.16.13.3, 00:05:48, FastEthernet6/0
+D       172.16.67.0 [90/33280] via 172.16.12.2, 00:02:15, FastEthernet1/0
+D    192.168.2.0/24 [90/156160] via 172.16.12.2, 00:09:16, FastEthernet1/0
+D    192.168.3.0/24 [90/156160] via 172.16.13.3, 00:05:17, FastEthernet6/0
+D    192.168.4.0/24 [90/156160] via 172.16.14.4, 00:04:12, FastEthernet0/0
+D    192.168.5.0/24 [90/158720] via 172.16.13.3, 00:02:59, FastEthernet6/0
+D    192.168.6.0/24 [90/158720] via 172.16.12.2, 00:01:44, FastEthernet1/0
+D    192.168.7.0/24 [90/161280] via 172.16.12.2, 00:00:57, FastEthernet1/0
+
+R-7:
+Router#show ip route eigrp 
+     10.0.0.0/8 is variably subnetted, 7 subnets, 2 masks
+D       10.0.0.0/8 is a summary, 00:01:29, Null0
+D       10.1.0.0/24 [90/161280] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D       10.2.0.0/24 [90/161280] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D       10.3.0.0/24 [90/161280] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D       10.4.0.0/24 [90/161280] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D       10.5.0.0/24 [90/161280] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D       10.6.0.0/24 [90/161280] via 172.16.67.6, 00:01:37, FastEthernet0/0
+     172.16.0.0/16 is variably subnetted, 11 subnets, 2 masks
+D       172.16.0.0/16 is a summary, 00:01:29, Null0
+D       172.16.12.0/24 [90/33280] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D       172.16.13.0/24 [90/35840] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D       172.16.14.0/24 [90/35840] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D       172.16.26.0/24 [90/30720] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D       172.16.35.0/24 [90/38400] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D       172.16.112.0/24 [90/20517120] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D       172.16.113.0/24 [90/20519680] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D       172.16.114.0/24 [90/20519680] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D       172.16.115.0/24 [90/20519680] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D    192.168.2.0/24 [90/158720] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D    192.168.3.0/24 [90/163840] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D    192.168.4.0/24 [90/163840] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D    192.168.5.0/24 [90/166400] via 172.16.67.6, 00:01:37, FastEthernet0/0
+D    192.168.6.0/24 [90/156160] via 172.16.67.6, 00:01:37, FastEthernet0/0
+
+R-7:
+Router#ping 10.1.0.1 
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 10.1.0.1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 0/0/0 ms
+
+تبریک می گویم الان همه روتر های شما به این پرتکل مجهز شده اند و الان هر loopback جدیدی ایحاد کنید می توانید اضافه کنید
+ مثلا درون روتر اول می آید یک loopback دیگر ایجاد کنید و می بینید که بقیه روتر ها آن را بلافاصله می بینند
+R-1:
+R-1#show ip eigrp topology 
+IP-EIGRP Topology Table for AS 100/ID(10.6.0.1)
+
+Codes: P - Passive, A - Active, U - Update, Q - Query, R - Reply,
+       r - Reply status
+
+P 10.0.0.0/8, 1 successors, FD is 168960
+         via 172.16.12.2 (168960/166400), FastEthernet1/0
+         via 172.16.112.2 (20652800/166400), Serial3/0
+P 10.1.0.0/24, 1 successors, FD is 128256
+         via Connected, Loopback1
+P 10.2.0.0/24, 1 successors, FD is 128256
+         via Connected, Loopback2
+P 10.3.0.0/24, 1 successors, FD is 128256
+         via Connected, Loopback3
+P 10.4.0.0/24, 1 successors, FD is 128256
+         via Connected, Loopback4
+P 10.5.0.0/24, 1 successors, FD is 128256
+         via Connected, Loopback5
+P 10.6.0.0/24, 1 successors, FD is 128256
+         via Connected, Loopback6
+P 172.16.12.0/24, 1 successors, FD is 28160
+         via Connected, FastEthernet1/0
+P 172.16.13.0/24, 1 successors, FD is 28160
+         via Connected, FastEthernet6/0
+P 172.16.14.0/24, 1 successors, FD is 28160
+         via Connected, FastEthernet0/0
+P 172.16.26.0/24, 1 successors, FD is 30720
+         via 172.16.12.2 (30720/28160), FastEthernet1/0
+         via 172.16.112.2 (20514560/28160), Serial3/0
+P 172.16.35.0/24, 1 successors, FD is 30720
+         via 172.16.13.3 (30720/28160), FastEthernet6/0
+         via 172.16.113.3 (20514560/28160), Serial8/0
+         via 172.16.115.5 (20514560/28160), Serial9/0
+P 172.16.67.0/24, 1 successors, FD is 33280
+         via 172.16.12.2 (33280/30720), FastEthernet1/0
+         via 172.16.112.2 (20517120/30720), Serial3/0
+P 172.16.112.0/24, 1 successors, FD is 20512000
+         via Connected, Serial3/0
+P 172.16.113.0/24, 1 successors, FD is 20512000
+         via Connected, Serial8/0
+P 172.16.114.0/24, 1 successors, FD is 20512000
+         via Connected, Serial2/0
+P 172.16.115.0/24, 1 successors, FD is 20512000
+         via Connected, Serial9/0
+P 192.168.2.0/24, 1 successors, FD is 156160
+         via 172.16.12.2 (156160/128256), FastEthernet1/0
+         via 172.16.112.2 (20640000/128256), Serial3/0
+P 192.168.3.0/24, 1 successors, FD is 156160
+         via 172.16.13.3 (156160/128256), FastEthernet6/0
+         via 172.16.113.3 (20640000/128256), Serial8/0
+P 192.168.4.0/24, 1 successors, FD is 156160
+         via 172.16.14.4 (156160/128256), FastEthernet0/0
+         via 172.16.114.2 (20640000/128256), Serial2/0
+P 192.168.5.0/24, 1 successors, FD is 158720
+         via 172.16.13.3 (158720/156160), FastEthernet6/0
+         via 172.16.115.5 (20640000/128256), Serial9/0
+         via 172.16.113.3 (20642560/156160), Serial8/0
+P 192.168.6.0/24, 1 successors, FD is 158720
+         via 172.16.12.2 (158720/156160), FastEthernet1/0
+         via 172.16.112.2 (20642560/156160), Serial3/0
+P 192.168.7.0/24, 1 successors, FD is 161280
+         via 172.16.12.2 (161280/158720), FastEthernet1/0
+         via 172.16.112.2 (20645120/158720), Serial3/0
+
+R-1#show ip eigrp neighbors 
+IP-EIGRP neighbors for process 100
+H   Address         Interface      Hold Uptime    SRTT   RTO   Q   Seq
+                                   (sec)          (ms)        Cnt  Num
+0   172.16.12.2     Fa1/0          14   00:28:07  40     1000  0   118
+1   172.16.112.2    Se3/0          12   00:21:17  40     1000  0   118
+2   172.16.13.3     Fa6/0          14   00:14:25  40     1000  0   76
+3   172.16.113.3    Se8/0          10   00:14:25  40     1000  0   75
+4   172.16.14.4     Fa0/0          11   00:13:09  40     1000  0   79
+5   172.16.114.2    Se2/0          13   00:13:09  40     1000  0   78
+6   172.16.115.5    Se9/0          13   00:12:01  40     1000  0   84
+
+R-1(config)#interface fastEthernet 1/0
+R-1(config-if)#bandwidth 1000
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.12.2 (FastEthernet1/0) is up: new adjacency
+می توانید برای خود پهنای باند را هم تعییر دهید یا مقدار deley:
+
+R-1(config-if)#delay 15000
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.12.2 (FastEthernet1/0) is down: interface down
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.12.2 (FastEthernet1/0) is up: new adjacency
+
+####################################
+
+All Code:
+R1(config)#router eigrp 100
+R1(config-router)#no auto-summary
+R1(config-router)# network 192.168.1.0
+R1(config-router)#passive-interface fastethernet 0/0
+R1#show ip protocol
+R1#show ip route
+R1#show ip route eigrp
+R1#show ip eigrp topology
+R1#show ip eigrp topology all-link
+R1#show ip eigrp neighbor
+R1#show interfaces fast 0/0

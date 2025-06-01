@@ -1,0 +1,34 @@
+Spainning Tree Protocol = STP
+STP:چه کمکی به ما می کند؟برای جلوگیری از به وجود امدن Loop درون شبکه هست
+مشکلات به وجود آمده در هنگام LOOP
+802.1d
+عملکرد STP چگونه است؟می آید پورتی که این فرایند برای اون دارد انجام می شود را به صورت block قرار می هد
+پرتکل STP برای اینکه این کار انجام دهد اهتیاج به چند چیز دیگر دارد:
+Bridge Protocol Data Unit = BPDU
+Election
+Root Bridge
+Designated port
+پرتکل STP با استفاه از بسته های BPDU این کار را انجام می دهد و باعث می شود ساختار درختی به وجود بی آید
+STP Election
+Bridge ID
+default 32768 = 0-65535 = 2 byte = Priority 
+MAC 
+Port ID
+default 128 =0-255 = 8 bit = Priority 
+Port number
+Path cost مقدار عددی هست برای رسیدن به آن پورت مورد نظر
+اولین اقدام برای ساختار درختی ایجاد روت بردج هست
+Root Bridge
+Bridge ID
+default 32768 = 0-65535 = 2 byte = Priority
+MAC
+نکته:برای اینکه ما سوئیچ خود را برای ساختار درختی قرار دهیم باید درون شبکه خود ببینیم کدام یک از سوئیچ های ما مقدار مک آن کم ترین عدد را دارد
+بعد باید از Root port  استفاده کنیم که از path cost هست مقدار عددی که برای رسیدن پورت مورد نظر است بعد باید پورت های خود را به حالت :
+Designated Port برای قرار دادن به عنوان ریشه درخت 
+کل وضعیت های که پورت دارد :
+STP Port status
+Disable
+Blocking
+Listening
+Learning
+Forwarding

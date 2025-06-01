@@ -1,0 +1,243 @@
+ما می توانیم درون روتر های خود next-hop تعریف نمائیم :
+default route:زمانی استفاده می نمائیم که مقصدی نا معلوم داشته باشیم
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ip address 192.168.1.1 255.255.255.0
+Router(config)#interface serial 0/0
+Router(config-if)#ip address 192.168.12.1 255.255.255.0
+#################################
+R1:
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ip address 192.168.1.1 255.255.255.0
+Router(config-if)#no shutdown 
+
+Router(config)#interface fastEthernet 0/1
+Router(config-if)#ip address 192.168.12.1 255.255.255.0
+Router(config-if)#no shutdown 
+Router#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+ 
+FastEthernet0/0        192.168.1.1     YES manual up                    up
+ 
+FastEthernet0/1        192.168.12.1    YES manual up                    down
+ 
+Vlan1                  unassigned      YES unset  administratively down down
+
+R2:
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ip address 192.168.12.2 255.255.255.0
+Router(config-if)#no shutdown 
+
+Router(config-if)#interface fastEthernet 0/1
+Router(config-if)#ip address 192.168.23.2 255.255.255.0
+Router(config-if)#no shutdown 
+Router#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+ 
+FastEthernet0/0        192.168.12.2    YES manual up                    up
+ 
+FastEthernet0/1        192.168.23.2    YES manual up                    down
+ 
+Vlan1                  unassigned      YES unset  administratively down down
+
+Router#ping 192.168.12.2
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 192.168.12.2, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/7/16 ms
+نکته:برای اینکه در خط لاین های ترمینال خود به انتهای خط ctl+e و به ابتدای خط ctl+a را استفاده کنید
+
+R3:
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ip address 192.168.23.3 255.255.255.0
+Router(config-if)#no shutdown 
+
+Router(config-if)#interface fastEthernet 0/1
+Router(config-if)#ip address 192.168.34.3 255.255.255.0
+Router(config-if)#no shutdown 
+
+R4:
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ip address 192.168.34.4 255.255.255.0
+Router(config-if)#no shutdown 
+
+Router(config-if)#interface fastEthernet 0/1
+Router(config-if)#ip address 192.168.4.4 255.255.255.0
+Router(config-if)#no shutdown 
+
+Router#ping 192.168.34.3
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 192.168.34.3, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 0/0/1 ms
+
+توجه ئتشته باشید آن پورتی که بر روی آن دارید آی پی می زنید خیلی دقت شود
+
+PC1:
+192.168.1.11
+255.255.255.0
+default Getway: 192.168.1.1
+
+PC2:
+192.168.4.11
+255.255.255.0
+default Getway: 192.168.4.4
+
+PC>ping 192.168.4.4
+
+Pinging 192.168.4.4 with 32 bytes of data:
+
+Reply from 192.168.4.4: bytes=32 time=1ms TTL=255
+Reply from 192.168.4.4: bytes=32 time=0ms TTL=255
+Reply from 192.168.4.4: bytes=32 time=0ms TTL=255
+Reply from 192.168.4.4: bytes=32 time=0ms TTL=255
+
+
+PC1:
+PC>ping 192.168.4.11
+
+Pinging 192.168.4.11 with 32 bytes of data:
+
+Reply from 192.168.1.1: Destination host unreachable.
+Reply from 192.168.1.1: Destination host unreachable.
+Reply from 192.168.1.1: Destination host unreachable.
+Reply from 192.168.1.1: Destination host unreachable.
+
+Ping statistics for 192.168.4.11:
+    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),
+
+R1:
+Router#show ip route 
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+C    192.168.1.0/24 is directly connected, FastEthernet0/0
+C    192.168.12.0/24 is directly connected, FastEthernet0/1
+
+توجه داشته باشید برای ارتباط بین fastethernet ها خود باید از ip استفاده کنید
+
+Router(config)#ip route 192.168.4.0 255.255.255.0 ?
+  A.B.C.D          Forwarding router's address
+  Ethernet         IEEE 802.3
+  FastEthernet     FastEthernet IEEE 802.3
+  GigabitEthernet  GigabitEthernet IEEE 802.3z
+  Loopback         Loopback interface
+  Null             Null interface
+  Serial           Serial
+  Vlan             Catalyst Vlans
+
+Router(config)#ip route 192.168.4.0 255.255.255.0 192.168.12.2
+
+Router#show ip route 
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+C    192.168.1.0/24 is directly connected, FastEthernet0/0
+S    192.168.4.0/24 is directly connected, FastEthernet0/1
+C    192.168.12.0/24 is directly connected, FastEthernet0/1
+
+R2:
+Router(config)#ip route 192.168.4.0 255.255.255.0 192.168.23.3
+Router#show ip route 
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+S    192.168.4.0/24 [1/0] via 192.168.23.3
+C    192.168.12.0/24 is directly connected, FastEthernet0/0
+C    192.168.23.0/24 is directly connected, FastEthernet0/1
+
+R3:
+Router(config)#ip route 192.168.4.0 255.255.255.0 192.168.34.4
+Router#show ip route 
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+S    192.168.4.0/24 [1/0] via 192.168.34.4
+C    192.168.23.0/24 is directly connected, FastEthernet0/0
+C    192.168.34.0/24 is directly connected, FastEthernet0/1
+
+تا اینجای کار شما فقظ مسیر رفت را درست کرده اید باید مسیر باز گشت هم ایجاد کنید
+
+R4:
+Router(config)#ip route 192.168.1.0 255.255.255.0 192.168.34.3
+Router#show ip route 
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+S    192.168.1.0/24 [1/0] via 192.168.34.3
+C    192.168.4.0/24 is directly connected, FastEthernet0/0
+C    192.168.34.0/24 is directly connected, FastEthernet0/1
+
+R3:
+Router(config)#ip route 192.168.1.0 255.255.255.0 192.168.23.2
+Router#show ip route
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+S    192.168.1.0/24 [1/0] via 192.168.23.2
+S    192.168.4.0/24 [1/0] via 192.168.34.4
+C    192.168.23.0/24 is directly connected, FastEthernet0/0
+C    192.168.34.0/24 is directly connected, FastEthernet0/1
+
+R2:
+Router(config)#ip route 192.168.1.0 255.255.255.0 192.168.12.1
+Router#show ip route
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+S    192.168.1.0/24 [1/0] via 192.168.12.1
+S    192.168.4.0/24 [1/0] via 192.168.23.3
+C    192.168.12.0/24 is directly connected, FastEthernet0/0
+C    192.168.23.0/24 is directly connected, FastEthernet0/1
+
+شما توانستید مسیر بازگشت هم ایحاد نمائید

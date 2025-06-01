@@ -1,0 +1,8 @@
+Secure Shell
+1- Hostname
+2- Domain Name
+3- Key
+4- Version
+5- User
+6- Allow SSH
+7- Login Local

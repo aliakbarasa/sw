@@ -1,0 +1,173 @@
+Border Gateway Protocol (BGP)
+Exterior Gateway Protocol (EGP)
+EGP vs IGP
+TCP 179
+BGP Type :
+ External BGP - AD : 20 ارتباط داخلی
+ Internal BGP – AD : 200 ارتباط خارجی
+Peer همسایگی
+Attribute
+keepalive 60 -hold time 180
+
+ارتباط با همسایگی BGP Peering
+Source IP address
+AS
+Authentication
+Router-ID
+
+Command Code:
+R-1:
+R-1(config)#interface loopback 1
+R-1(config-if)#ip address 192.168.1.1 255.255.255.0
+R-1(config-if)#no shutdown 
+
+R-1(config)#interface fastEthernet 0/0
+R-1(config-if)#ip address 172.16.14.1 255.255.255.0
+R-1(config-if)#no shutdown 
+
+R-1(config)#interface serial 2/0
+R-1(config-if)#ip address 172.16.12.1 255.255.255.0
+R-1(config-if)#no shutdown 
+
+R-1(config)#ip route 192.168.4.0 255.255.255.0 172.16.14.4
+
+R-2:
+R-2(config)#interface loopback 1
+R-2(config-if)#ip address 192.168.2.2 255.255.255.0
+R-2(config-if)#no shutdown 
+
+R-2(config)#interface fastEthernet 0/0
+R-2(config-if)#ip address 172.16.23.2 255.255.255.0
+R-2(config-if)#no shutdown 
+
+R-2(config)#interface serial 2/0
+R-2(config-if)#ip address 172.16.12.2 255.255.255.0
+R-2(config-if)#no shutdown 
+
+R-2(config)#router eigrp 100
+R-2(config-router)#network 172.16.23.0 0.0.0.255
+R-2(config-router)#network 192.168.2.0
+
+R-3:
+R-3(config)#interface loopback 1
+R-3(config-if)#ip address 192.168.3.3 255.255.255.0
+R-3(config-if)#no shutdown 
+
+R-3(config)#interface fastEthernet 0/0
+R-3(config-if)#ip address 172.16.23.3 255.255.255.0
+R-3(config-if)#no shutdown 
+
+R-3(config)#router eigrp 100
+R-3(config-router)#network 172.16.23.0 0.0.0.255 
+%DUAL-5-NBRCHANGE: IP-EIGRP 100: Neighbor 172.16.23.2 (FastEthernet0/0) is up: new adjacency
+R-3(config-router)#network 192.168.3.0
+
+R-4:
+R-4(config)#interface loopback 1
+R-4(config-if)#ip address 192.168.4.4 255.255.255.0
+R-4(config-if)#no shutdown 
+
+R-4(config)#interface fastEthernet 0/0
+R-4(config-if)#ip address 172.16.14.4 255.255.255.0
+R-4(config-if)#no shutdown 
+
+R-4(config)#ip route 0.0.0.0 0.0.0.0 172.16.14.1
+
+#############################################
+R-1:
+R-1#ping 192.168.4.4
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 192.168.4.4, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 0/0/0 ms
+
+R-2:
+R-2#ping 192.168.3.3
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 192.168.3.3, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 0/0/1 ms
+
+ارتباط بین روتر ها قعال هست حال می آیم برای خود پرتکل BGP را فعال می نمائیم
+
+R-1:
+R-1(config)#router bgp 2
+R-1(config-router)#neighbor 172.16.12.2 remote-as 1
+
+R-2:
+R-2(config)#router bgp 1
+R-2(config-router)#neighbor 172.16.12.1 remote-as 2
+R-2(config-router)#%BGP-5-ADJCHANGE: neighbor 172.16.12.1 Up
+
+حال می آیم شبکه ها را به آن معرفی می نمائیم
+R-2(config)#router bgp 2
+R-1(config-router)#network 192.168.1.0
+
+R-1(config-router)#network 172.16.14.0 ?
+  mask  Network mask
+  <cr>
+
+R-1(config-router)#network 172.16.14.0 mask 255.255.255.0
+R-1(config-router)#network 192.168.4.0
+
+R-1(config-router)#do show ip route
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+     172.16.0.0/24 is subnetted, 2 subnets
+C       172.16.12.0 is directly connected, Serial2/0
+C       172.16.14.0 is directly connected, FastEthernet0/0
+C    192.168.1.0/24 is directly connected, Loopback1
+S    192.168.4.0/24 [1/0] via 172.16.14.4
+
+R-2:
+R-2(config)#router bgp 1
+R-2(config-router)#network 192.168.2.0
+R-2(config-router)#network 172.16.23.0 mask 255.255.255.0
+R-2(config-router)#network 192.168.3.0
+
+R-2(config-router)#do show ip route
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+     172.16.0.0/16 is variably subnetted, 4 subnets, 2 masks
+D       172.16.0.0/16 is a summary, 00:23:22, Null0
+C       172.16.12.0/24 is directly connected, Serial2/0
+B       172.16.14.0/24 [20/0] via 172.16.12.1, 00:46:53
+C       172.16.23.0/24 is directly connected, FastEthernet0/0
+B    192.168.1.0/24 [20/0] via 172.16.12.1, 00:46:53
+C    192.168.2.0/24 is directly connected, Loopback1
+D    192.168.3.0/24 [90/156160] via 172.16.23.3, 00:20:57, FastEthernet0/0
+B    192.168.4.0/24 [20/0] via 172.16.12.1, 00:46:53
+
+R-2:
+R-2(config)#router eigrp 100
+R-2(config-router)#redistribute bgp 1 metric 100 100 100 100 1500
+
+###########################################
+All code:
+R1(config)#router bgp 2
+R1(config-if)#neighbor 172.16.12.2 remote-as 1
+R1(config-if)#network 192.168.1.0
+R1(config-if)#network 172.16.14.0 mask 255.255.255.0
+R1#show ip bgp
+R1#show ip bgp summary
+R1#show ip bgp neighbor
+R1#show ip route
+R1#show running-config

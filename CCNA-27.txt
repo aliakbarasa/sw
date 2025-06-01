@@ -1,0 +1,162 @@
+PPP over Ethernet (PPPoE)
+Point to Point Protocol (PPP)
+WAN (PTP)
+Open standard
+Data link layer
+Dial-up Connection
+PPP Benefits :
+Authentication
+Assign IP Address 
+برای ارسال اطلاعات دو فاز را باید بگذراند
+Link control protocol (LCP)فاز 1
+Loop link detection
+Error detection
+Multilink
+Authentication
+Network control protocol (NCP)فاز 2
+IP => IPCP
+IPv6 => IPv6CP
+CDP => CDPCP 
+Authentication Method :پرتکل اهراز هویت
+Password Authentication Protocol (PAP)به صورت clear text انجام می هد به صورت دوطرفه انجام میدهد
+Challenge Handshake Authentication Protocol (CHAP)
+Multilink PPP
+Session-ID
+Active Discovery
+
+راه اندازی PAP:
+R-1:
+R-1(config)#username R-2 password 123
+R-1(config-if)#ip address 1.1.1.1 255.255.255.0 
+R-1(config-if)#no shutdown 
+R-1(config-if)#encapsulation ppp
+R-1(config-if)#ppp authentication pap
+
+R-2:
+R-2(config)#interface serial 2/0
+R-2(config-if)#ip address 1.1.1.2 255.255.255.0
+R-2(config-if)#no shutdown 
+R-2(config-if)#encapsulation ppp
+R-2(config-if)#ppp pap sent-username R-2 password 123
+%LINEPROTO-5-UPDOWN: Line protocol on Interface Serial2/0, changed state to up
+R-2(config-if)#do ping 1.1.1.1
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 1.1.1.1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/7/15 ms
+
+تا اینجا ارتباط یک طرفه بود که الان آن را دو زرفه می نمائیم:
+
+R-2:
+R-2(config)#username R-1 password 123
+R-2(config)#interface serial 2/0
+R-2(config-if)#ppp authentication pap
+%LINEPROTO-5-UPDOWN: Line protocol on Interface Serial2/0, changed state to down
+
+R-2(config-if)#do show ip inter brief
+Interface              IP-Address      OK? Method Status                Protocol
+ 
+FastEthernet0/0        unassigned      YES unset  administratively down down
+ 
+FastEthernet1/0        unassigned      YES unset  administratively down down
+ 
+Serial2/0              1.1.1.2         YES manual up                    "down"
+ 
+Serial3/0              unassigned      YES unset  administratively down down
+ 
+FastEthernet4/0        unassigned      YES unset  administratively down down
+ 
+FastEthernet5/0        unassigned      YES unset  administratively down down
+
+R-1:
+R-1(config)#interface serial 2/0
+R-1(config-if)#ppp pap sent-username R-1 password 123
+%LINEPROTO-5-UPDOWN: Line protocol on Interface Serial2/0, changed state to up
+
+R-1(config-if)#
+%LINEPROTO-5-UPDOWN: Line protocol on Interface Serial2/0, changed state to up
+
+R-1(config-if)#do show ip inter brief
+Interface              IP-Address      OK? Method Status                Protocol
+ 
+FastEthernet0/0        unassigned      YES unset  administratively down down
+ 
+FastEthernet1/0        unassigned      YES unset  administratively down down
+ 
+Serial2/0              1.1.1.1         YES manual up                    "up"
+ 
+Serial3/0              unassigned      YES unset  administratively down down
+ 
+FastEthernet4/0        unassigned      YES unset  administratively down down
+ 
+FastEthernet5/0        unassigned      YES unset  administratively down down
+
+الان ارتباط دوطرفه شد
+
+حال پرتکل CHAP:
+R-3(config)#username R-4 password 123
+R-3(config)#interface serial 2/0
+R-3(config-if)#ip address 1.1.1.1 255.255.255.0
+R-3(config-if)#no shutdown 
+R-3(config-if)#encapsulation ppp
+R-3(config-if)#ppp authentication Chap 
+R-3(config-if)#ppp Chap hostname R-3
+R-3(config-if)#ppp Chap password 123
+R-4:
+R-4(config)#username R-4 password 123
+R-4(config)#interface serial 2/0
+R-4(config-if)#ip address 1.1.1.2 255.255.255.0
+R-4(config-if)#no shutdown 
+R-4(config-if)#encapsulation ppp
+R-4(config-if)#ppp authentication Chap 
+R-4(config-if)#ppp Chap hostname R-3
+R-4(config-if)#ppp Chap password 123
+
+R-4:
+R-4(config)#do ping 1.1.1.1
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 1.1.1.1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 5/15/28 ms
+
+R-3:
+R-3#ping 1.1.1.2
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 1.1.1.2, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/5/13 ms
+
+MLPPP:
+R-5:
+interface Multilink 1
+ip address 1.1.1.1 255.255.255.0
+ppp multilink group 1
+interface Serial 2/0
+no shutdown
+encapsulation ppp
+ppp multilink
+ppp multilink group 1
+!
+interface Serial 3/0
+no shutdown
+encapsulation ppp
+ppp multilink
+ppp multilink group 1
+R-6:
+interface Multilink 1
+ip address 1.1.1.2 255.255.255.0
+ppp multilink group 1
+interface Serial 2/0
+no shutdown
+encapsulation ppp
+ppp multilink
+ppp multilink group 1
+!
+interface Serial 3/0
+no shutdown
+encapsulation ppp
+ppp multilink
+ppp multilink group 1

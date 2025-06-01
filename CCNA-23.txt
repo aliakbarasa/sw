@@ -1,0 +1,272 @@
+Code OSPF
+Core-Router:
+Core-Router(config)#interface loopback 1
+Core-Router(config-if)#ip address 10.1.10.1 255.255.255.0
+Core-Router(config-if)#no shutdown 
+Core-Router(config-if)#interface loopback 2
+Core-Router(config-if)#ip address 10.1.11.1 255.255.255.0
+Core-Router(config-if)#no shutdown 
+Core-Router(config-if)#interface loopback 3
+Core-Router(config-if)#ip address 10.1.12.1 255.255.255.0
+Core-Router(config-if)#no shutdown 
+Core-Router(config-if)#interface loopback 4
+Core-Router(config-if)#ip address 10.1.13.1 255.255.255.0
+Core-Router(config-if)#no shutdown 
+Core-Router(config)#interface loopback 5
+Core-Router(config-if)#ip address 10.1.14.1 255.255.255.0
+Core-Router(config-if)#no shutdown
+ 
+Core-Router(config)#interface fastEthernet 0/0
+Core-Router(config-if)#ip address 172.18.0.1 255.255.255.0
+Core-Router(config-if)#no shutdown 
+
+Core-Router(config)#interface serial 2/0
+Core-Router(config-if)#ip address 172.18.13.1 255.255.255.0
+Core-Router(config-if)#no shutdown 
+
+Core-Router(config-if)#interface serial 9/0
+Core-Router(config-if)#ip address 172.18.12.1 255.255.255.0
+Core-Router(config-if)#no shutdown 
+
+Core-Router(config-if)#interface serial 3/0
+Core-Router(config-if)#ip address 172.18.11.1 255.255.255.0
+Core-Router(config-if)#no shutdown 
+
+
+Core-Router#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+ 
+FastEthernet0/0        172.18.0.1      YES manual up                    up
+ 
+FastEthernet1/0        unassigned      YES unset  administratively down down
+ 
+Serial2/0              172.18.13.1     YES manual down                  down
+ 
+Serial3/0              172.18.11.1     YES manual down                  down
+ 
+FastEthernet4/0        unassigned      YES unset  administratively down down
+ 
+FastEthernet5/0        unassigned      YES unset  administratively down down
+ 
+Serial9/0              172.18.12.1     YES manual down                  down
+ 
+Loopback1              10.1.10.1       YES manual up                    up
+ 
+Loopback2              10.1.11.1       YES manual up                    up
+ 
+Loopback3              10.1.12.1       YES manual up                    up
+ 
+Loopback4              10.1.13.1       YES manual up                    up
+ 
+Loopback5              10.1.14.1       YES manual up                    up
+
+
+R-2:
+R-2(config)#interface fastEthernet 0/0
+R-2(config-if)#ip address 172.18.0.2 255.255.255.0
+R-2(config-if)#no shutdown 
+
+R-2(config)#interface loopback 1
+R-2(config-if)#ip address 10.1.2.2 255.255.255.0
+R-2(config-if)#no shutdown 
+
+R-3:
+R-3(config)#interface fastEthernet 0/0
+R-3(config-if)#ip address 172.18.0.3 255.255.255.0
+R-3(config-if)#no shutdown 
+
+R-3(config)#interface loopback 1
+R-3(config-if)#ip address 10.1.3.3 255.255.255.0
+R-3(config-if)#no shutdown 
+
+R-4:
+R-4(config)#interface fastEthernet 0/0
+R-4(config-if)#ip address 172.18.3.4 255.255.255.0
+R-4(config-if)#no shutdown 
+
+R-4(config)#interface serial 2/0
+R-4(config-if)#ip address 172.18.13.4 255.255.255.0
+R-4(config-if)#no shutdown 
+
+R-4(config)#interface loopback 1
+R-4(config-if)#ip address  10.4.1.4 255.255.255.0
+R-4(config-if)#no shutdown 
+
+R-5:
+R-5(config)#interface fastEthernet 0/0
+R-5(config-if)#ip address 172.18.3.5 255.255.255.0
+R-5(config-if)#no shutdown 
+
+R-6:
+R-6(config)#interface fastEthernet 0/0
+R-6(config-if)#ip address 172.18.3.6 255.255.255.0
+R-6(config-if)#no shutdown 
+
+R-6(config)#interface loopback 1
+R-6(config-if)#ip address 10.4.3.6 255.255.255.0
+R-6(config-if)#no shutdown 
+
+R-7:
+R-7(config)#interface fastEthernet 0/0
+R-7(config-if)#ip address 172.18.1.7 255.255.255.0
+R-7(config-if)#no shutdown 
+
+R-7(config)#interface serial 2/0
+R-7(config-if)#ip address 172.18.11.7 255.255.255.0
+R-7(config-if)#no shutdown 
+
+R-7(config)#interface loopback 1
+R-7(config-if)#ip address 10.2.1.7 255.255.255.0
+R-7(config-if)#no shutdown 
+
+R-8:
+R-8(config)#interface fastEthernet 0/0
+R-8(config-if)#ip address 172.18.1.8 255.255.255.0
+R-8(config-if)#no shutdown 
+
+R-8(config)#interface loopback 1
+R-8(config-if)#ip address 10.2.2.8 255.255.255.0
+R-8(config-if)#no shutdown 
+
+R-9:
+R-9(config)#interface fastEthernet 0/0
+R-9(config-if)#ip address 172.18.1.9 255.255.255.0
+R-9(config-if)#no shutdown 
+
+R-9(config)#interface loopback 1
+R-9(config-if)#ip address 10.2.3.9 255.255.255.0
+R-9(config-if)#no shutdown 
+
+R-10:
+R-10(config)#interface serial 2/0
+R-10(config-if)#ip address 172.18.12.10 255.255.255.0
+R-10(config-if)#no shutdown 
+
+R-10(config)#interface loopback 1
+R-10(config-if)#ip address 10.3.1.10 255.255.255.0
+R-10(config-if)#no shutdown 
+
+##################################################
+Protocol Code OSPF:
+نکته:شما مقدار غددی که می خواهید بدیهید ببرای همستیگی مب تواند متقاوت باشد بر روی هر روتر و مشکلی نیست
+Core-Router(config-router)#network 172.18.0.0 ?
+  A.B.C.D  OSPF wild card bits
+در اینجا شما باشد مقدار وتیاد کارت رو بزنید
+Core-Router(config-router)#network 172.18.0.0 0.0.255.255 ?
+  area  Set the OSPF area ID
+بعد باید منطقه خود را مشخص کنید
+Core-Router(config-router)#network 172.18.0.0 0.0.255.255 area 0
+Core-Router(config-router)#network 10.1.0.0 0.0.255.255 area 0
+
+R-2:
+R-2(config)#router ospf 1
+R-2(config-router)#network 172.18.0.0 0.0.0.255 area 0
+00:58:07: %OSPF-5-ADJCHG: Process 1, Nbr 10.1.14.1 on FastEthernet0/0 from LOADING to FULL, Loading Done
+
+R-2(config-router)#network 10.1.2.0 0.0.0.255 area 0
+
+R-2(config-router)#do show ip route
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+     10.0.0.0/8 is variably subnetted, 6 subnets, 2 masks
+C       10.1.2.0/24 is directly connected, Loopback1
+O       10.1.10.1/32 [110/2] via 172.18.0.1, 00:01:30, FastEthernet0/0
+O       10.1.11.1/32 [110/2] via 172.18.0.1, 00:01:30, FastEthernet0/0
+O       10.1.12.1/32 [110/2] via 172.18.0.1, 00:01:30, FastEthernet0/0
+O       10.1.13.1/32 [110/2] via 172.18.0.1, 00:01:30, FastEthernet0/0
+O       10.1.14.1/32 [110/2] via 172.18.0.1, 00:01:30, FastEthernet0/0
+     172.18.0.0/24 is subnetted, 4 subnets
+C       172.18.0.0 is directly connected, FastEthernet0/0
+O       172.18.11.0 [110/65] via 172.18.0.1, 00:01:30, FastEthernet0/0
+O       172.18.12.0 [110/65] via 172.18.0.1, 00:01:30, FastEthernet0/0
+O       172.18.13.0 [110/65] via 172.18.0.1, 00:01:30, FastEthernet0/0
+
+R-3:
+R-3(config)#router ospf 1
+R-3(config-router)#network 172.18.0.0 0.0.0.255 area 0
+01:01:48: %OSPF-5-ADJCHG: Process 1, Nbr 10.1.2.2 on FastEthernet0/0 from LOADING to FULL, Loading Done
+
+01:01:48: %OSPF-5-ADJCHG: Process 1, Nbr 10.1.14.1 on FastEthernet0/0 from LOADING to FULL, Loading Done
+
+R-3(config-router)#network 10.1.3.0 0.0.0.255 area 0
+
+R-3#show ip ospf neighbor 
+
+
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+10.1.14.1         1   FULL/DR         00:00:38    172.18.0.1      FastEthernet0/0
+10.1.2.2          1   FULL/BDR        00:00:30    172.18.0.2      FastEthernet0/0
+
+ما می توانیم برای خود روتری که م یخواهیم را به عنوان Dr تعریف نمائیم کد زیر را می زنیم
+
+R-4:
+R-4(config)#router ospf 1
+R-4(config-router)#router-id 200.200.200.200
+اینجا چون روتر ها به عنوان BDR هست و در دو منطقه مجزا باید برای آن مشخص کنیم دقیق تر
+R-4(config-router)#network 172.18.3.0 0.0.0.255 area 3
+R-4(config-router)#network 172.18.13.0 0.0.0.255 area 0
+01:10:14: %OSPF-5-ADJCHG: Process 1, Nbr 10.1.14.1 on Serial2/0 from LOADING to FULL, Loading Done
+R-4(config-router)#network 10.4.1.0 0.0.0.255 area 3
+
+R-5:
+R-5(config-router)#network 172.18.3.0 0.0.0.255 area 3
+R-5(config-router)#network 10.4.2.0 0.0.0.255 area 3
+01:13:38: %OSPF-5-ADJCHG: Process 1, Nbr 200.200.200.200 on FastEthernet0/0 from LOADING to FULL, Loading Done
+
+R-6:
+R-6(config-router)#network 172.18.3.0 0.0.0.255 area 3
+R-6(config-router)#network 10.4.3.0 0.0.0.255 area 3
+01:14:34: %OSPF-5-ADJCHG: Process 1, Nbr 10.4.2.5 on FastEthernet0/0 from LOADING to FULL, Loading Done
+
+R-7:
+R-7(config)#router ospf 1
+R-7(config-router)#network 172.18.11.0 0.0.255.255 area 0
+01:13:50: %OSPF-5-ADJCHG: Process 1, Nbr 10.1.14.1 on Serial2/0 from LOADING to FULL, Loading Done
+R-7(config-router)#network 172.18.1.0 0.0.255.255 area 1
+R-7(config-router)#network 10.2.1.0 0.0.0.255 area 1
+روشی دیگر هست که روتر خود را BDR تعریف نمائیم:
+R-7(config)#interface fastEthernet 0/0
+R-7(config-if)#ip ospf priority 100
+اگر مقدار عدد بالا را 0 بگذارید دیگر این روتر BDR قرار نمی گیرد ولی با دادن مقدار عددی بالا این روتر به حالت BDR می رود
+
+R-8:
+R-8(config)#router ospf 1
+R-8(config-router)#network 172.18.1.0 0.0.0.255 area 1
+R-8(config-router)#network 10.2.2.0 0.0.0.255 area 1
+01:13:34: %OSPF-4-ERRRCV: Received invalid packet: mismatch area ID, from backbone area must be virtual-link but not found from 172.18.1.8, FastEthernet0/0
+01:13:45: %OSPF-5-ADJCHG: Process 1, Nbr 10.2.1.7 on FastEthernet0/0 from LOADING to FULL, Loading Done
+
+R-9:
+R-9(config)#router ospf 1
+R-9(config-router)#network 172.18.1.0 0.0.0.255 area 1
+R-9(config-router)#network 10.2.3.0 0.0.0.255 area 1
+
+R-10:
+R-10(config)#router ospf 1
+R-10(config-router)#network 172.18.12.0 0.0.255.255 area 0
+01:24:59: %OSPF-5-ADJCHG: Process 1, Nbr 10.1.14.1 on Serial2/0 from LOADING to FULL, Loading Done
+R-10(config-router)#network 10.3.1.0 0.0.0.255 area 2
+
+اگر شبکه های خود را ping بگیرید می توانید مشاهده کنید که ارتباط شما با هم متصل هستند
+کل دستورات:
+Router(config-if)#router ospf 1
+Router(config-router)#router-id 1.1.1.1
+Router(config-router)#network 192.168.1 0.0.0.255 area 0
+Router(config-router)#passive-interface fastEthernet 0/1
+Router(config-if)#ip ospf priority 100
+Router#show ip ospf neighbor
+Router#show ip ospf interface
+Router#show ip ospf database
+Router#show ip ospf
+Router#show ip protocol
+Router#show ip route
+Router#show ip route ospf
+Router#debug ip ospf adj 

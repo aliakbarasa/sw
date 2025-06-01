@@ -1,0 +1,125 @@
+EIGRP IPV6
+ابتدا باید IPv6 را بر روی روتر ها فعال کنیم:
+R-1(config)#ipv6 unicast-routing 
+R-1(config)#interface loopback 1
+R-1(config-if)#ipv6 address 2001:1111:1111:1111::1/64
+
+R-1(config)#interface fastEthernet 0/0
+R-1(config-if)#ipv6 address 2001:1212:1212:1212::/64 eui-64 
+R-1(config-if)#no shutdown 
+
+R-1(config)#interface fastEthernet 0/1
+R-1(config-if)#ipv6 address 2001:1313:1313:1313::/64 eui-64 
+R-1(config-if)#no shutdown 
+
+R-1#show ipv6 interface brief 
+FastEthernet0/0            [up/down]
+    FE80::20D:BDFF:FE54:2101
+    2001:1212:1212:1212:20D:BDFF:FE54:2101
+FastEthernet0/1            [up/down]
+    FE80::20D:BDFF:FE54:2102
+    2001:1313:1313:1313:20D:BDFF:FE54:2102
+Loopback1                  [up/up]
+    FE80::2D0:58FF:FE3C:A5AB
+    2001:1111:1111:1111::1
+Vlan1                      [administratively down/down]
+
+R-1#show ipv6 route 
+IPv6 Routing Table - 3 entries
+Codes: C - Connected, L - Local, S - Static, R - RIP, B - BGP
+       U - Per-user Static route, M - MIPv6
+       I1 - ISIS L1, I2 - ISIS L2, IA - ISIS interarea, IS - ISIS summary
+       O - OSPF intra, OI - OSPF inter, OE1 - OSPF ext 1, OE2 - OSPF ext 2
+       ON1 - OSPF NSSA ext 1, ON2 - OSPF NSSA ext 2
+       D - EIGRP, EX - EIGRP external
+C   2001:1111:1111:1111::/64 [0/0]
+     via ::, Loopback1
+L   2001:1111:1111:1111::1/128 [0/0]
+     via ::, Loopback1
+L   FF00::/8 [0/0]
+     via ::, Null0
+
+برای اینکه این پرتکل را فعال کنیم باید اول آن را فعال کرده و بعد برویم بر روی پورت های خود دستورات را بزنیم:
+R-1(config)#ipv6 router eigrp 100
+
+R-1(config)#interface fastEthernet 0/0
+R-1(config-if)#ipv6 eigrp 100
+
+R-1(config-if)#interface fastEthernet 0/1
+R-1(config-if)#ipv6 eigrp 100
+
+R-1(config)#interface loopback 1
+R-1(config-if)#ipv6 eigrp 100
+
+R-1(config)#ipv6 router eigrp 100
+R-1(config-rtr)#eigrp router-id ?
+  A.B.C.D  EIGRP Router-ID in IP address format
+
+R-1(config-rtr)#eigrp router-id 1.1.1.1
+
+R-1#show ipv6 interface brief 
+FastEthernet0/0            [up/down]
+    FE80::20D:BDFF:FE54:2101
+    2001:1212:1212:1212:20D:BDFF:FE54:2101
+FastEthernet0/1            [up/down]
+    FE80::20D:BDFF:FE54:2102
+    2001:1313:1313:1313:20D:BDFF:FE54:2102
+Loopback1                  [up/up]
+    FE80::2D0:58FF:FE3C:A5AB
+    2001:1111:1111:1111::1
+Vlan1                      [administratively down/down]
+
+R-2:
+R-2(config)#ipv6 unicast-routing
+R-2(config)#interface loopback 1
+R-2(config-if)#ipv6 address 2001:2222:2222:2222::2/64
+R-2(config-if)#no shutdown 
+
+R-2(config)#interface fastEthernet 0/0
+R-2(config-if)#ipv6 address 2001:1212:1212:1212::/64 eui-64 
+R-2(config-if)#no shutdown 
+R-2(config-if)#ipv6 eigrp 100
+
+R-2(config-if)#interface fastEthernet 0/1
+R-2(config-if)#ipv6 address 2001:2323:2323:2323::/64 eui-64 
+R-2(config-if)#no shutdown 
+R-2(config-if)#ipv6 eigrp 100
+
+R-2(config)#ipv6 router eigrp 100
+R-2(config-rtr)#eigrp router-id  2.2.2.2
+R-2(config-rtr)#no shutdown 
+
+R-3:
+R-3(config)#ipv6 unicast-routing 
+R-3(config)#interface loopback 1
+R-3(config-if)#ipv6 address 2001:3333:3333:3333::3/64
+R-3(config-if)#no shutdown 
+R-3(config)#ipv6 router eigrp 100
+
+R-3(config)#interface fastEthernet 0/0
+R-3(config-if)#ipv6 address 2001:1313:1313:1313::/64 eui-64 
+R-3(config-if)#no shutdown 
+R-3(config)#ipv6 router eigrp 100
+
+R-3(config)#interface fastEthernet 0/1
+R-3(config-if)#ipv6 address 2001:2323:2323:2323::/64 eui-64 
+R-3(config-if)#no shutdown 
+R-3(config)#ipv6 router eigrp 100
+
+R-3(config)#ipv6 router eigrp 100
+R-3(config-rtr)#eigrp router-id 3.3.3.3
+R-3(config-rtr)#no shutdown 
+
+All Code:
+R1(config)#ipv6 unicast-routing
+R1(config)#ipv6 router eigrp 100
+R1(config-rtr)# eigrp router-id 1.1.1.1
+R1(config-if)#ipv6 eigrp 100
+R1#show ipv6 protocol
+R1#show ipv6 route
+R1#show ipv6 eigrp topology
+R1#show ipv6 eigrp neighbor 
+
+
+
+

@@ -1,0 +1,195 @@
+etherchanel
+کاربرد این وِزگی اینجاست که وقتی ما سوئیچی داریم برای مثال پورت های آن 10 مگ هستند برای اینکه پهنای باند آنها را افزایش دهیم یا می رویم یک سوئیچ می خریم که با پهنای باند بیشتری باشد یا اینکه می آیم دوتا لینک درون سوئیچ ایجاد می نمائیم بجای این کار های از این ویژگی استفاده می کنیم این ویژگی می اید جند تا پورت فیزیکی را می گیرد و یک پورت منطقی تبدیل می نماید
+مزایای این ویژگی :
+بلاک نشدن توسط STP
+عدم ایجاد لوپ
+load balancing نحوه تقسیم بار را بر روی لینک ها داریم که با آن گویند per flow
+per flow :یعنی ارسال اطلاعات توسط سوئیچ بر روی هر لینک
+per packet:ارسال اطلاعات به صورت مساوی بر روی هر یگ پورت های خود
+جمع کردن و ادغام چند لینک در یک لینک منطقی و رسیدن به پهناي باند بیشتر
+حداکثر 8 لینک (جهت استفاده بهینه از لینک ها تعداد 2 ، 4 یا 8 لینک باشد)
+ما دو پرتکل می توانیم استفاده کنیم:
+ (Port Aggregation Protocol)PAgP
+اختصاصی سیسکو
+Mode (on , desirable , auto)
+desirable و auto بر اساس مذاکره انجام می شود ولی on یعنی داعم باشد 
+(Link Aggregation Control Protocol) LACP
+(IEEE 802.3ad) عمومی استاندارد
+Mode (on , active , passive)
+دستورات:
+SW(config)#interface port-channel 5
+در اینجا عدد 5 به صورت دلخواه هست که از 1-48 هست که می توانیم فقط برای نامی که می خواهیم بسازیم عدد را بدیهیم بهتر هست در همه پورت ها یکسان باشد
+Switch#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol 
+Port-channel5          unassigned      YES unset  down                  down 
+FastEthernet0/1        unassigned      YES unset  up                    up 
+FastEthernet0/2        unassigned      YES unset  up                    up 
+FastEthernet0/3        unassigned      YES unset  down                  down 
+FastEthernet0/4        unassigned      YES unset  down                  down 
+FastEthernet0/5        unassigned      YES unset  down                  down 
+FastEthernet0/6        unassigned      YES unset  down                  down 
+FastEthernet0/7        unassigned      YES unset  down                  down 
+FastEthernet0/8        unassigned      YES unset  down                  down 
+FastEthernet0/9        unassigned      YES unset  down                  down 
+FastEthernet0/10       unassigned      YES unset  down                  down 
+FastEthernet0/11       unassigned      YES unset  down                  down 
+FastEthernet0/12       unassigned      YES unset  down                  down 
+FastEthernet0/13       unassigned      YES unset  down                  down 
+FastEthernet0/14       unassigned      YES unset  down                  down 
+FastEthernet0/15       unassigned      YES unset  down                  down 
+FastEthernet0/16       unassigned      YES unset  down                  down 
+FastEthernet0/17       unassigned      YES unset  down                  down 
+FastEthernet0/18       unassigned      YES unset  down                  down 
+FastEthernet0/19       unassigned      YES unset  down                  down 
+FastEthernet0/20       unassigned      YES unset  down                  down 
+FastEthernet0/21       unassigned      YES unset  down                  down 
+FastEthernet0/22       unassigned      YES unset  down                  down 
+FastEthernet0/23       unassigned      YES unset  down                  down 
+FastEthernet0/24       unassigned      YES unset  down                  down 
+GigabitEthernet0/1     unassigned      YES unset  down                  down 
+GigabitEthernet0/2     unassigned      YES unset  down                  down 
+Vlan1                  unassigned      YES unset  administratively down down
+حال می خواهیم پورت های که این فرایند را برای آنها انجام دهیم را انتخاب می نمائیم
+Switch(config)#interface range fastEthernet 0/1-2
+Switch(config-if-range)#channel-group 5 mode ?
+  active     Enable LACP unconditionally
+  auto       Enable PAgP only if a PAgP device is detected
+  desirable  Enable PAgP unconditionally
+  on         Enable Etherchannel only
+  passive    Enable LACP only if a LACP device is detected
+Switch(config-if-range)#channel-group 5 mode desirable
+Switch#show etherchannel summary 
+Flags:  D - down        P - in port-channel
+        I - stand-alone s - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+        U - in use      f - failed to allocate aggregator
+        u - unsuitable for bundling
+        w - waiting to be aggregated
+        d - default port
+
+
+Number of channel-groups in use: 1
+Number of aggregators:           1
+
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+----------------------------------------------
+
+5      Po5(SD)           PAgP   Fa0/1(I) Fa0/2(I)
+نکته:چیزی که برای مهم هست این هست که ما روبه رو پورت های خود P را ببینیم که وقتی سوئیچ مقابل را کانفیگ نمائیم این فراید رخ می دهد 
+Switch#show etherchannel summary 
+Flags:  D - down        P - in port-channel
+        I - stand-alone s - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+        U - in use      f - failed to allocate aggregator
+        u - unsuitable for bundling
+        w - waiting to be aggregated
+        d - default port
+
+
+Number of channel-groups in use: 1
+Number of aggregators:           1
+
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+----------------------------------------------
+
+5      Po5(SU)           PAgP   Fa0/1(P) Fa0/2(P) 
+شما می توانید مستقیم وارد چنل ساخته شده روید که خود سوئیچ آن را برای شما می سازد
+Switch#show etherchannel 
+                Channel-group listing:
+                ----------------------
+
+Group: 5
+----------
+Group state = L2
+Ports: 2 Maxports = 8
+Port-channels: 1 Max Portchannels = 1
+Protocol:   PAGP
+نکته:شما می توانید پورتی که ساخته اید را به حالت ترانک هم کنید ولی باید اول آن را encapsulation کنید 
+Switch(config)#interface port-channel 5
+Switch(config-if)#switchport trunk encapsulation dot1q 
+Switch(config-if)#switchport mode trunk 
+Switch#show interfaces trunk 
+Port        Mode         Encapsulation  Status        Native vlan
+Po5         on           802.1q         trunking      1
+
+Port        Vlans allowed on trunk
+Po5         1-1005
+
+Port        Vlans allowed and active in management domain
+Po5         1
+
+Port        Vlans in spanning tree forwarding state and not pruned
+Po5         1
+نکته:هر زمان خاصتیت ویژگی تغییر دهید بر روی پورت خود حتما وارد پورت چنل شوید چون اگر به صورت مستقیم بر روی پورت خود این کار را انجام دهدی پورت شما از حالت پورت چنل در می آید 
+شما حتا می توانید بر روی لایه 3 هم این کار را هم کنید 
+برای اینکار دستورات زیر را انجام می دهید :
+Switch(config)#interface port-channel 5
+Switch(config-if)#no switchport 
+در سمت مقابل هم همین گونه:
+Switch#show etherchannel summary 
+Flags:  D - down        P - in port-channel
+        I - stand-alone s - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+        U - in use      f - failed to allocate aggregator
+        u - unsuitable for bundling
+        w - waiting to be aggregated
+        d - default port
+
+
+Number of channel-groups in use: 1
+Number of aggregators:           1
+
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+----------------------------------------------
+
+5      Po5(RU)           PAgP   Fa0/1(P) Fa0/2(P)
+یا این کار شما می توانید برای این پورت چنل آی پی قرار دهید 
+دستورات کلی:
+SW-1
+Switch(config)#interface port-channel 6
+Switch(config)#interface range fastEthernet 0/1-2
+Switch(config-if-range)#channel-group 6 mode desirable 
+Switch#show etherchannel summary 
+Flags:  D - down        P - in port-channel
+        I - stand-alone s - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+        U - in use      f - failed to allocate aggregator
+        u - unsuitable for bundling
+        w - waiting to be aggregated
+        d - default port
+
+
+Number of channel-groups in use: 1
+Number of aggregators:           1
+
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+----------------------------------------------
+
+6      Po6(SD)           PAgP   Fa0/1(I) Fa0/2(I) 
+------------------------------------------------
+SW-2
+Switch(config)#interface port-channel 6
+Switch(config)#interface range fastEthernet 0/1-2
+Switch(config-if-range)#channel-group 6 mode auto 
+Switch#show etherchannel summary 
+
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+----------------------------------------------
+
+6      Po6(SU)           PAgP   "Fa0/1(P) Fa0/2(P) "
+SW-1
+Switch#show etherchannel summary 
+
+6      Po6(SU)           PAgP   "Fa0/1(P) Fa0/2(P)"
+
+برای اینکه پورت های خود را trunk کنید:
+
+Switch(config)#interface port-channel 6
+Switch(config-if)#switchport mode trunk 
+
+برای اینکه به لایه 3 بروید:
+دستورات بالا هست

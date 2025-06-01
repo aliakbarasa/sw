@@ -1,0 +1,266 @@
+نکته:برای اینکه ما به وی لن های خود ip بدهیم باید از یک دستگاهی به نام router استقاده کنیم
+برای اینکه از این دستگاه استقاده نکنیم می توانیم از سوئیچ های MLS (Multilayer Switch) کنیم
+دستورات:
+Switch(config)#interface range fastEthernet 0/1-3
+Switch(config-if-range)#duplex full 
+Router(config)#interface fastEthernet 0/0.?
+Router(config-subif)#ip address 192.168.10.1 255.255.255.0
+
+% Configuring IP routing on a LAN subinterface is only allowed if that
+subinterface is already configured as part of an IEEE 802.10, IEEE 802.1Q,
+or ISL vLAN.
+Router(config-subif)#encapsulation dot1Q 10
+Router(config-subif)#do show running-config
+Building configuration...
+
+Current configuration : 492 bytes
+!
+version 12.2
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname Router
+!
+!
+!
+!
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface FastEthernet0/0
+ no ip address
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+!
+ip classless
+!
+ip flow-export version 9
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+!
+!
+end
+Router#show ip route 
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+C    192.168.10.0/24 is directly connected, FastEthernet0/0.10
+C    192.168.20.0/24 is directly connected, FastEthernet0/0.20
+
+مراجعه به عکس Routing باید به صورت دو طرفه باشد
+
+.....................................
+#####################################
+SWitch:
+Switch(config)#interface range fastEthernet 0/1-3
+برای اینکه پورت های خود را به صوزت full duplex کنید باید دستور زیر را تایپ کنید که درون packet tracer نیست
+Switch(config-if-range)#no negotiation auto
+
+Switch(config-if)#switchport access vlan 10
+% Access VLAN does not exist. Creating vlan 10
+Switch(config-if)#switchport access vlan 20
+% Access VLAN does not exist. Creating vlan 20
+Switch(config-if-range)#interface fastEthernet 0/1
+Switch(config-if)#switchport mode trunk 
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#no shutdown 
+می خواهیم دوتا رنج آیپی بر روی این درگاه بزینم کد های زیر:
+Router(config)#interface fastEthernet 0/0.?
+  <0-4294967295>  FastEthernet interface number
+نکته:شماره درگاه خود را با vlan یکی کنید که بهتر هست
+Router(config)#interface fastEthernet 0/0.10
+Router(config-subif)#
+%LINK-5-CHANGED: Interface FastEthernet0/0.10, changed state to up
+
+%LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/0.10, changed state to up
+
+Router(config-subif)#ip address 192.168.10.1 255.255.255.0
+
+% Configuring IP routing on a LAN subinterface is only allowed if that
+subinterface is already configured as part of an IEEE 802.10, IEEE 802.1Q,
+or ISL vLAN.
+
+یاید مشخص کنیم از چه پرتکلی می خواهیم استفاده کنیم برای همین کد زیر را می زنیم
+Router(config-subif)#encapsulation dot1Q 10
+در آخر پرتکل باید vlan خود را مشخص کنیم
+Router(config-subif)#ip address 192.168.10.1 255.255.255.0
+
+Router#show running-config 
+Building configuration...
+
+Current configuration : 584 bytes
+!
+version 12.2
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname Router
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+interface FastEthernet0/0
+ no ip address
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+!
+interface FastEthernet0/0.20
+ encapsulation dot1Q 20
+ ip address 192.168.20.1 255.255.255.0
+!
+ip classless
+!
+ip flow-export version 9
+!
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+end
+
+بر روی سیستم های خود ip default getway خود rooter را می گیریم که باید درست باشد
+بعد خود سسیستم دیگری را با آیپی آن را ping میگیریم که باید درست باشد
+
+Router#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+ 
+FastEthernet0/0        unassigned      YES unset  up                    up
+ 
+FastEthernet0/0.10     192.168.10.1    YES manual up                    up
+ 
+FastEthernet0/0.20     192.168.20.1    YES manual up                    up
+
+روتر ها چگونه مسیریابی می نمایدند با استفاده از جدول مسیر یابی یا rote table
+Router#show ip route 
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+C    192.168.10.0/24 is directly connected, FastEthernet0/0.10
+C    192.168.20.0/24 is directly connected, FastEthernet0/0.20
+
+........................................
+########################################
+شما می توانید ارتباط بین vlan ها خود هم ایجاد نمائید با استفاده از SVI یا Switch Virtual Interface
+Switch:
+Switch(config)#interface vlan 10
+Switch(config-if)#ip address 192.168.10.1 255.255.255.0
+Switch(config-if)#interface vlan 20
+Switch(config-if)#ip address 192.168.20.1 255.255.255.0
+Switch(config)#vlan 10
+%LINK-5-CHANGED: Interface Vlan10, changed state to up
+Switch(config)#vlan 20
+%LINK-5-CHANGED: Interface Vlan20, changed state to up
+
+Switch(config)#interface fastEthernet 0/1
+Switch(config-if)#switchport mode access 
+Switch(config-if)#switchport access vlan 10
+
+Switch(config)#interface fastEthernet 0/2
+Switch(config-if)#switchport mode access 
+Switch(config-if)#switchport access vlan 20
+
+Switch(config)#vlan 10
+%LINK-5-CHANGED: Interface Vlan10, changed state to up
+Switch(config)#vlan 20
+%LINK-5-CHANGED: Interface Vlan20, changed state to up
+
+برای فعال کردن حالت routing درون سوئیچ های لایه 3 دستور زیر
+Switch(config)#ip routing
+بعد می توانید بین سیستم های خود درون vlan های جدا با هم ارتباط بگیرید
+
+#####################
+اول عکس Routing.png را ببینید و طبق آن دستگاه های خود و همین طور وی لن های خود را آی پی داده و ایجاد کنید
+بعد از اینکه به دستگاه های خود آی پی دادیم می  رویم سوئیچ خود را کانفیگ کرده و وی لن های خود را می سازیم.
+حتا ترانک خود را هم می سازیم:
+دستورات روتر :
+R-1:
+R-1(config)#interface fastEthernet 0/0
+R-1(config-if)#no shutdown 
+حال می آیم برای خود ساب انتر فیس می سازیم:
+R-1(config)#interface fastEthernet 0/0.10
+%LINK-5-CHANGED: Interface FastEthernet0/0.10, changed state to up
+%LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/0.10, changed state to up
+عددی که می دهید می توانید هر عددی باشد ولی برای که با Vlan های شما یکی باشد بهتر هست که اعداد مشابه دهید
+R-1(config-subif)#ip address 192.168.10.1 255.255.255.0
+% Configuring IP routing on a LAN subinterface is only allowed if that
+subinterface is already configured as part of an IEEE 802.10, IEEE 802.1Q,
+or ISL vLAN.
+توجه داشته باشید که آی پی که می خواهید بدهید باید default getway شما باشد
+و اینکه الان به ارور خوردیم که باید بیایم پرتکل 802.1q را اعمال کنیم
+ R-1(config-subif)#encapsulation dot1Q ?
+  <1-1005>  IEEE 802.1Q VLAN ID
+R-1(config-subif)#encapsulation dot1Q 10
+R-1(config-subif)#ip address 192.168.10.1 255.255.255.0
+باید عددی که برای اینکپسولیشن انجام می دهید هم با vlan شما یکی باشد
+برای ان یگ پورت وی لن هم این کار را انجام می دهیم
+R-1(config)#interface fastEthernet 0/0.20
+R-1(config-subif)#encapsulation dot1Q 20
+R-1(config-subif)#ip address 192.168.20.1 255.255.255.0
+#############################################################
+نکته ای که وجود دارد برای اینکه سوئیچ های بایه سه وی لن های آنها با هم ارتباط داشته باشند بغد از اینکه به وی لن ها آی پی دی فالت را دادید می آید بر روی روتر خود دستور زیر را زده تا سوئیچ شما به حالت روتیگ برود
+ML-SW-1(config)#ip routing 
+به عکس SVI-Switch.png بروید

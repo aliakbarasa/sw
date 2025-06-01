@@ -1,0 +1,6 @@
+Router#reload 
+Proceed with reload? [confirm]
+اینتر را بزنید روی یوئیچ ها همین طور
+Switch#reload 
+Proceed with reload? [confirm]
+اینتر را بزنید روی یوئیچ ها همین طور

@@ -1,0 +1,31 @@
+Wide Area Network (WAN)
+مالک آن نیستیم
+راه اندازي آن نیاز به صرف زمان ، هزینه و ...
+بابت استفاده از آن هزینه پرداخت می کنیم
+تمام ترافیک شبکه WAN مربوط به ما نیست
+سرعت پایینی دارند 
+WAN Topology
+Point to Point
+Hub and Spoke
+Full Mesh 
+WAN Terminology
+Leased line
+Customer Premise Equipment (CPE)
+Channel Service Unit (CSU)
+Data Service Unit (DSU)
+Data Circuit-terminating Euipment (DCE)
+data terminal equipment (DTE)
+Demarcation Point
+T1/E1 
+Multiprotocol Label Switching (MPLS)
+Customer Edge (CE)
+Provider Edge (PE)
+Label Switch Router (LSR)
+Ingress LSR
+Egress LSR
+Intermediate LSR
+LSR Action :
+Push
+Pop
+Swap
+Label Switched Path (LSP) 

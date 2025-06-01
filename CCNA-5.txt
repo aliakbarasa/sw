@@ -1,0 +1,115 @@
+switch>enable رفتن از حالت user به سطح privelage
+switch>configure terminal رفتن از حالت privelage به سطح config
+Switch(config)#hostname asa تغیر دادن نام دستگاه
+برای حذف کردن دستوراتی که قبلا زده ایم باید از دستور no استفاده کنیم
+asa(config)#no hostname 
+Switch#show running-config اطلاعات خیلی زیادی از دستگاه به ما داده می شود که می توانیم آن را بر اساس نیاز خودخروجی بگیریم
+Switch#show running-config | begin line
+Switch#show ip interface brief وضعیت کلی از درگاه های ما درون سوئیچ را می گوید 
+برای رفتن به لایه کانفیگ گورت ها دستورات زیر را تایپ می نمائیم:
+Switch# conf t
+Switch(config)#interface fastEthernet 0/1
+و اگر درون یک یاز این پورت های خود دستور shutdown را بزنیم آن پورت خاموش می شود:
+Switch(config-if)#shutdown
+برای اینکه هم از حالت خاموشی پورت را غیر فعال کرده و پورت را فعال کنیم دستور زیر:
+Switch(config-if)#no shutdown
+برای اینکه برای یکی از پورت های خود ip بدهیم دستور زیر را تایپ می نمائیم:
+Switch(config-if)#ip address 192.168.1.1 255.255.255.0
+شما می توانید از دستور do در لایه کانفیک دستورات پریویلج مود را فراخوانی کنید اما باید دستورات را به صورت کامل حفظ باشید
+نکته:از لحاظ امنیتی پورت های که از آنها استفاده نمی شود را باید خاموش کرد که از آنها استفاده نکرد 
+برایاین کار دستور زیر:
+Switch(config)#interface range fastEthernet 0/1-24
+Switch(config-if-range)#shutdown
+نکته:برای اینکه سوئیچ خود را به شبکه های دیگر ارتباط داشته باشد باید برای آن یک Getway تعریف نمائیم 
+Switch(config)#ip default-gateway 192.168.1.1
+Secure Access
+CTY:دسترسی از طریق کنسول
+TTY:دسترسی کنسول از طریق Access Server
+VTY:دسترسی از طریق telnet,ssh
+AUX:دسترسی از طریق مودم
+برای اینکه سیستم خود را امنیت به آن ببخشیم باید وارد تب کانفیگ شده و در لایه کنسول قرار بگیریم تا آن را امنیت دهیم:
+Switch#configure terminal
+Switch(config)#line console 0
+Switch(config-line)#password Fsociety
+دستور login را بعد از اینکه پسورد خود را دادیم می زنیم تا هنگام ورود دوباره به سوئیچ از ما اهراز هویت داده شود 
+Switch(config-line)#login
+نکته:ما حتا می تواین دسترسی مود user را از privilage محدود کنیم:
+Switch(config)#enable password Hacker
+Switch(config)#enable secret Daniel
+شما وقتی دستور زیر را می گیرید برای اینکه اطلاعات سیستم را ببینید می بینید که به شما واضح پسورد نشان داده می شود برای اینکه پسورد شما نشان داده نشود باید از secret استفاده کنید:
+Switch#show running-config
+---------------
+enable secret 5 $1$mERr$HmOr8EzHTAdUy6tTznztq0
+enable password Hacker
+---------------
+شما وقتی اطلاعات خود سیستم را می بینید می توانید ببینید که حتا پسورد اوله ورود هم به نمایش در امده برای اینکه کلیه پسورد های که داده می وشد را به حالت hash در بیاوریم باید از دستور زیر استفاده نمائیم:
+Switch(config)#service password-encryption
+نکته:ما برای اینکه به روتر ها و سوئیچ های خود از طریق ip و پرتکل teln پی دهیم بعد باید به سوئیچ های خود آی پی دهیم سوئیچ ها نمی توانند ای پی بگیرند چون در لایه دو هستند پس باید به vlan1 پورت رفته و به آن آی پی دهیم vlan ها در سئیچ ها برای ما این کار را می کنند که ما درون سوئیچ های خود شبکه های مجزا داشته باشیم:
+Switch(config)#interface vlan 1
+Switch(config-if)#ip address 192.168.1.4 255.255.255.0
+نکته:پورت vlan 1 بر روی سوئیچ حالت غیر فعال ادمین هست پس باید پورت آن را از این حالت در بیاوریم:
+Switch(config-if)#no shutdown
+نکته:اگر پرتکل vlan بر روی سویئچ های شما فععال بود و vlan بندی انجام شده بود باید قبل آن vlan های خود را پیدا کرده و کامپیوتر شما به چه vlan خورده تا به آن آی پی دهید با دستور زیر:
+Switch#show vlan
+نکته:شما برای اینکه به سوئیچ های خود ارتباط telnet بدهید باید بدانید چند کاربر به این سوئیچ می خواهد متصل شود که مقدار 0-15 هست اول 0 و دوباره عددی که می خواهید مثل زیر:
+Switch(config)#line vty ?
+  <0-15>  First Line number
+Switch(config)#line vty 0 4
+برای ان یک پسورد هم قرار می دهیم:
+Switch(config-line)#password Asa
+Secure Shell
+1- Hostname
+2- Domain Name
+3- Key
+4- Version
+5- User
+6- Allow SSH
+7- Login Local
+برای اینکه ارتباط ssh داشته باشیم باید فرایند بالا را اجرا نمائیم
+Switch(config)#hostname hacker
+Switch(config)#crypto key generate rsa
+نکته: rsa یک پرتکل نامتقارن هست و برای ما کار ساخت کلید را می سازد 
+hacker(config)#ip domain-name hacker.com
+hacker(config)#crypto key generate rsa
+The name for the keys will be: hacker.hacker.com
+Choose the size of the key modulus in the range of 360 to 4096 for your
+  General Purpose Keys. Choosing a key modulus greater than 512 may take
+  a few minutes.
+
+How many bits in the modulus [512]: 1024
+% Generating 1024 bit RSA keys, keys will be non-exportable...[OK]
+نکته:هر چقدر عدد کلید شما بیشتر باشد امنیت شما بیشتر خواهد بود  و هر چقدر طول کلید شما بیشتر باشد گردازش پیشتری هم می خواهد 
+hacker(config)#ip ssh version 2
+نکته:ورژن 2 بهتر از ورژن 1 ssh هست 
+نکته:شما اگر بخواهید برای پرتکل ssh user تعریف نمائید باید برای آنها سطح دسترسی تعریف نمائید که بهتر است با privelage این کار را انجام دهید
+hacker(config)#username Daniel privilege ?
+  <0-15>  User privilege level
+hacker(config)#username Daniel privilege 15 secret 123
+بعد باید دسترسی دهیم:
+hacker(config)#line vty 0 4
+hacker(config-line)#transport input ?
+  all     All protocols
+  none    No protocols
+  ssh     TCP/IP SSH protocol
+  telnet  TCP/IP Telnet protocol
+hacker(config-line)#transport input ssh
+نکته:شما اگر در سیستم واقعی وارد شوید پرتکل های بیشتری را مشاده می نمائید برای اینکه پرتکل های مورد نظر را فعال کنید باید پشت سر هم نام آنها را تایپ کنید:
+hacker(config-line)#transport input ssh telnet
+بعد برای اینکه از نام و پسورد تعریف شده سیستم استفاده کرد باید دستور زیر را تایپ نمائیم:
+hacker(config-line)#login local
+PC:
+C:\>ssh -l SW-01 192.168.1.1
+C:\>telnet 192.168.1.1
+
+ما می توانیم برای خود بنر درست نمائیم تا به محض اینکه کسی به سیستم سوئیچ ما متصل شد یک نامی برای او به نمایش در بیاید که باید بین دو کارکتر باشد تا متن ما به نمایش در بیاید:
+hacker(config)#banner motd @..........Welcome..........@
+شما حتا می توانید با دستور زیر زمان متصل بودن به سوئیچ خود را از راه دور زمانی که کاری انجام نمی دهید بعد از آن زمانی که تعریف کرده اید telnet شما متوفق شود
+exec-timeout 30
+شما می توانید لاگ هیا خود را در پرتکل telnet نبینید با دستور زیر:
+hacker(config-line)#logging synchronus
+شما می توانید با ساتفاده از access list به گوید که کدام ip ها به سیستم شما telnet بزنند:
+hacker(config-line)#access-class 1
+نکته:اگر شما دستور crypto را زدید و اینکه اگر دستور شما را نشناخت باید اول ورژن سیستم خود را ببینید با دستور زیر:
+show ver
+اگر آخر ورژن شما K9 وجود داشت یعنی سیستم شما از سیستم امنیتی استفاده می کند اگر نه که باید update کنید 
+

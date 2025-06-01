@@ -1,0 +1,175 @@
+Access Control List (ACL)
+Why we use ACL?
+ACE (Access Control Entries) 
+دو روش برای درست کردن acl هست :
+عددی:Number Acl
+نامی:Named Acl
+ما دو استاندارد داریم:
+Standard ACL
+Extended ACL
+ما دو نوع اعمال داریم:
+Inbound ترافیک ورودی
+Outbound ترافیک خروجی
+نکته:ما برای هر درگاه فقط یک چیز می تونیم مشخص کنیم با ورودی با خروجی
+Standard ACL قدیمی هستند
+numbered ACL 1-99 and 1300–1999
+Named ACL standard
+Source IP
+Closest to destination
+Code:
+access-list 1 {permit|deny} {host|source-wildcard|any}
+IP Access-list standard name
+{permit|deny} {host|source source-wildcard|any}
+Ip access-group {number|name} {in|out} 
+
+Extended ACL
+Code:
+numbered ACL 100-199 and 2000–2699
+Named ACL extended
+Source and destination IP , Source and destination port , protocol , flag
+Closest to Source
+
+access-list 101 {permit|deny} protocol source [S-port]destination [D-port]
+IP Access-list extended name
+{permit|deny} protocol source [S-port]destination [D-port]
+Ip access-group {number|name} {in|out} 
+
+IPv6 ACL
+Just Named ACL 
+IPv6 Access-list name
+{permit|deny} protocol source [S-port]destination [D-port]
+
+######################
+Code:
+R-2:
+R-2(config)#interface serial 2/0
+R-2(config-if)#ip address 192.168.23.2 255.255.255.0
+R-2(config-if)#no shutdown 
+
+R-2(config)#interface fastEthernet 0/0
+R-2(config-if)#ip address 192.168.2.1 255.255.255.0
+R-2(config-if)#no shutdown 
+R-2(config)#ip route 192.168.3.0 255.255.255.0 serial 2/0
+
+R-3:
+R-3(config)#interface serial 2/0
+R-3(config-if)#ip address 192.168.23.3 255.255.255.0
+R-3(config-if)#no shutdown 
+
+R-3(config)#interface fastEthernet 0/0
+R-3(config-if)#ip address 192.168.3.1 255.255.255.0
+R-3(config-if)#no shutdown 
+R-3(config)#ip route 192.168.2.0 255.255.255.0 serial 2/0
+
+PC-1:
+192.168.2.11 255.255.255.0 Getway:192.168.2.1
+PC-2:
+192.168.2.12 255.255.255.0 Getway: 192.168.2.1
+PC-3:
+192.168.3.13 255.255.255.0 Getway: 192.168.3.1
+Server:
+192.168.3.12 255.255.255.0 Getway:192.168.3.1
+
+###############################
+الان ارتباطات ok هست اگر ping همه دستگاه ها را بگیریم می بینیم که ارتباط آنها برقرار هست
+شروع به ساخت ACL که pc-1 یا سرور ارتباط آن قطع شود
+نکته:برای ساخت ACL باید جای را انتخاب کنیم که هم نزدیک به دستگاه ما باشد و هم ارتباط ما قطع نشود
+نکته:برای مسدود کردن deny و برای رد کردن prime
+R-3:
+R-3(config)#access-list ?
+  <1-99>     IP standard access list
+  <100-199>  IP extended access list
+R-3(config)#access-list 1 ?
+  deny    Specify packets to reject
+  permit  Specify packets to forward
+  remark  Access list entry comment
+R-3(config)#access-list 1 deny ?
+  A.B.C.D  Address to match یک رنج خاصی از شبکه
+  any      Any source host همه آی پی های شبکه
+  host     A single host address یکی ار آی پی دستگاه های شبکه
+"####
+R-3(config)#access-list 1 deny host 192.168.2.11
+"####
+حال باید اعمال کنیم بر روی آن دیگاهی که می خواهیم:
+R-3(config)#interface fastEthernet 0/0
+R-3(config-if)#ip access-group 1 ?
+  in   inbound packets ورودی 
+  out  outbound packets خروجی
+"####
+R-3(config-if)#ip access-group 1 out 
+"####
+با این کار ارتباط شما قطع شد برای اینکه تست کنید آن آی پی سرور را با سیستم 1 ping بگیرید که می شود:
+Reply from 192.168.23.3: Destination host unreachable.
+برای دیدن ACL خود:
+R-3(config-if)#do show access-list
+Standard IP access list 1
+    10 deny host 192.168.2.11 (12 match(es))
+با اینکار کل ارتباز را با همه دستکاه های که با این رنج هستند قطع شده برای اینکه این مشکل رفع شود کد زیر را به ACl خود اضافه نمائید
+R-3(config)#access-list 1 permit any 
+R-3(config)#do show access-list
+Standard IP access list 1
+    10 deny host 192.168.2.11 (12 match(es))
+    20 permit any
+مشکلی که اینجا هست الان ارتباز بقیه دستگاه ها درست شد و می توانند ارتباط بر قرار کنند ولی pc-1دیگر با کل شبکه ارتباط قطع شده برای اینکه بخواهد با pc-3 ارتباط بگیرد ما باید از Extended استفاده کنیم
+حال باید آن را تغییر رهیم می آیم آن را حذف می کنیم:
+R-3(config)#interface fastEthernet 0/0
+R-3(config-if)#no ip access-group 1 out 
+نکته:برای اینکه ما بخواهیم این Extended را راه اندازی کنیم باید نزدیک ترین جای به دستگاهی قرار دهیم که بسته ها را می خواهد ارسال کند:
+R-2:
+R-2(config)#ip access-list extended pc1
+R-2(config-ext-nacl)#deny ?
+  ahp    Authentication Header Protocol
+  eigrp  Cisco's EIGRP routing protocol
+  esp    Encapsulation Security Payload
+  gre    Cisco's GRE tunneling
+  icmp   Internet Control Message Protocol
+  ip     Any Internet Protocol
+  ospf   OSPF routing protocol
+  tcp    Transmission Control Protocol
+  udp    User Datagram Protocol
+R-2(config-ext-nacl)#deny ip ?
+  A.B.C.D  Source address آدرسی مشخص
+  any      Any source host همه دستگاه
+  host     A single source host فقط دستگاه مشخص
+R-2(config-ext-nacl)#deny ip 192.168.2.11 ?
+  A.B.C.D  Source wildcard bits
+R-2(config-ext-nacl)#deny ip 192.168.2.11 0.0.0.0 ?
+  A.B.C.D  Destination address
+  any      Any destination host
+  host     A single destination host
+"####
+R-2(config-ext-nacl)#deny ip 192.168.2.11 0.0.0.0 host 192.168.3.12
+"####
+برای اینکه به هر ACL ما یک Any اضافه می شود دستور زیر را می زنیم
+R-2(config-ext-nacl)#permit ip any any 
+حال اعمال می نمائیم بر روی در گاهی که می خواهیم:
+R-2(config)#interface fastEthernet 0/0
+R-2(config-if)#ip access-group pc1 in 
+حال ارتباط ما با سرور قطع شد:
+Reply from 192.168.2.1: Destination host unreachable.
+ولی ارتباط با PC-3 فعال هست:
+Reply from 192.168.3.13: bytes=32 time=2ms TTL=126
+
+R-2(config-if)#do show access-list
+Extended IP access list pc1
+    10 deny ip host 192.168.2.11 host 192.168.3.12 (4 match(es))
+    20 permit ip any any (8 match(es))
+حال می خواهیم ارتباط pc1 با سرور از طریق telnet برقرار باشد
+R-2(config)#ip access-list extended pc1
+نکته:برای اینکه بخواهیم اول این مورد باز بینی قرار گیرد باید بالای همه قرار دهیم که می توانید با شمارش آن را بالا و پایین کنیم:
+R-2(config-ext-nacl)#5 permit tcp host 192.168.2.11 host 192.168.3.12 eq ?
+  <0-65535>  Port number
+  domain     Domain Name Service (DNS, 53)
+  ftp        File Transfer Protocol (21)
+  pop3       Post Office Protocol v3 (110)
+  smtp       Simple Mail Transport Protocol (25)
+  telnet     Telnet (23)
+  www        World Wide Web (HTTP, 80)
+R-2(config-ext-nacl)#5 permit tcp host 192.168.2.11 host 192.168.3.12 eq telnet 
+می توانید عدد خود پرتکل را دهید یا اسم آن فرقی نمی کند اینجا eq برای ارتباط رفت و برگشت هست
+R-2(config)#do show access-list
+Extended IP access list pc1
+    5 permit tcp host 192.168.2.11 host 192.168.3.12 eq telnet
+    10 deny ip host 192.168.2.11 host 192.168.3.12 (4 match(es))
+    20 permit ip any any (8 match(es))
+برای پاک کردن هم همان دستور را درون ACL با نام با عددی که ثبت کرده اید وارد شوید و ابتدای آن no را تابپ کرده و Enter را بزنید

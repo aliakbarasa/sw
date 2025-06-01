@@ -1,0 +1,280 @@
+قابلیت های سوئیچ :
+Virtual Lan (Vlan) قابلیت آن این هست برای کنترل Broadcast Domain ها درون شبکه است و درون لایه های osi در لایه دو هست و گروه بندی بر روی پورت های سوئیچ انجام می شود 
+شماره vlan های قابل استفاده:
+range Normal 1-1500 (Reserved 1002-1005)
+Rabge Extended 1006-4094
+دستورات:
+Switch(config)#vlan ?
+  <1-4094>  ISL VLAN IDs 1-1005
+Switch(config)#vlan 20
+Switch(config-vlan)#?
+VLAN configuration commands:
+  exit         Apply changes, bump revision number, and exit mode
+  name         Ascii name of the VLAN
+  no           Negate a command or set its defaults
+  remote-span  Add the Remote Switched Port Analyzer (RSPAN) feature to the VLAN
+Switch(config-vlan)#name asa01
+Switch(config)#do show vlan
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/1, Fa0/2, Fa0/3, Fa0/4
+                                                Fa0/5, Fa0/6, Fa0/7, Fa0/8
+                                                Fa0/9, Fa0/10, Fa0/11, Fa0/12
+                                                Fa0/13, Fa0/14, Fa0/15, Fa0/16
+                                                Fa0/17, Fa0/18, Fa0/19, Fa0/20
+                                                Fa0/21, Fa0/22, Fa0/23, Fa0/24
+                                                Gig0/1, Gig0/2
+20   asa01                            active    
+1002 fddi-default                     active    
+1003 token-ring-default               active    
+1004 fddinet-default                  active    
+1005 trnet-default                    active    
+
+VLAN Type  SAID       MTU   Parent RingNo BridgeNo Stp  BrdgMode Trans1 Trans2
+---- ----- ---------- ----- ------ ------ -------- ---- -------- ------ ------
+1    enet  100001     1500  -      -      -        -    -        0      0
+20   enet  100020     1500  -      -      -        -    -        0      0
+1002 fddi  101002     1500  -      -      -        -    -        0      0   
+1003 tr    101003     1500  -      -      -        -    -        0      0   
+1004 fdnet 101004     1500  -      -      -        ieee -        0      0   
+1005 trnet 101005     1500  -      -      -        ibm  -        0      0   
+
+VLAN Type  SAID       MTU   Parent RingNo BridgeNo Stp  BrdgMode Trans1 Trans2
+---- ----- ---------- ----- ------ ------ -------- ---- -------- ------ ------
+
+Remote SPAN VLANs
+------------------------------------------------------------------------------
+
+Primary Secondary Type              Ports
+------- --------- ----------------- ------------------------------------------
+دستورات قرار گیری درون vlan ها:
+نکته:برای اینکه پورت های خود را درون vlan های که ساخته ایم قرار دهیم باید سوئیچ خود را در حالت access قرار دهیم:
+Switch(config)#interface fastEthernet 0/1
+Switch(config-if)#switchport mode ?
+  access   Set trunking mode to ACCESS unconditionally
+  dynamic  Set trunking mode to dynamically negotiate access or trunk mode
+  trunk    Set trunking mode to TRUNK unconditionally
+Switch(config-if)#switchport access vlan 20
+Switch(config-if)#do show vlan
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/2, Fa0/3, Fa0/4, Fa0/5
+                                                Fa0/6, Fa0/7, Fa0/8, Fa0/9
+                                                Fa0/10, Fa0/11, Fa0/12, Fa0/13
+                                                Fa0/14, Fa0/15, Fa0/16, Fa0/17
+                                                Fa0/18, Fa0/19, Fa0/20, Fa0/21
+                                                Fa0/22, Fa0/23, Fa0/24, Gig0/1
+                                                Gig0/2
+20   asa01                            active    Fa0/1
+1002 fddi-default                     active    
+1003 token-ring-default               active    
+1004 fddinet-default                  active    
+1005 trnet-default                    active    
+
+VLAN Type  SAID       MTU   Parent RingNo BridgeNo Stp  BrdgMode Trans1 Trans2
+---- ----- ---------- ----- ------ ------ -------- ---- -------- ------ ------
+1    enet  100001     1500  -      -      -        -    -        0      0
+20   enet  100020     1500  -      -      -        -    -        0      0
+1002 fddi  101002     1500  -      -      -        -    -        0      0   
+1003 tr    101003     1500  -      -      -        -    -        0      0   
+1004 fdnet 101004     1500  -      -      -        ieee -        0      0   
+1005 trnet 101005     1500  -      -      -        ibm  -        0      0   
+
+VLAN Type  SAID       MTU   Parent RingNo BridgeNo Stp  BrdgMode Trans1 Trans2
+---- ----- ---------- ----- ------ ------ -------- ---- -------- ------ ------
+
+Remote SPAN VLANs
+------------------------------------------------------------------------------
+
+Primary Secondary Type              Ports
+------- --------- ----------------- ------------------------------------------
+روش دیگر برای ساخت vlan این هست مستقیم وارد همان پورت مورد نظر شویم:
+Switch(config)#interface fastEthernet 0/3
+Switch(config-if)#switchport mode access
+Switch(config-if)#switchport access vlan 10
+% Access VLAN does not exist. Creating vlan 10
+دستورات دیگر:
+برای اینکه وی لن های خود را به صورت خلاصه تر ببینیم :
+Switch#show vlan brief 
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/5, Fa0/6, Fa0/7, Fa0/8
+                                                Fa0/9, Fa0/10, Fa0/11, Fa0/12
+                                                Fa0/13, Fa0/14, Fa0/15, Fa0/16
+                                                Fa0/17, Fa0/18, Fa0/19, Fa0/20
+                                                Fa0/21, Fa0/22, Fa0/23, Fa0/24
+                                                Gig0/1, Gig0/2
+10   asa02                            active    Fa0/3, Fa0/4
+20   asa01                            active    Fa0/1, Fa0/2
+1002 fddi-default                     active    
+1003 token-ring-default               active    
+1004 fddinet-default                  active    
+1005 trnet-default                    active  
+برای به دست آوردن اطلاعات خیلی زیادی در رابطه با یک پورت:
+Switch#show interfaces fastEthernet 0/1 switchport 
+Name: Fa0/1
+Switchport: Enabled
+Administrative Mode: static access
+Operational Mode: static access
+Administrative Trunking Encapsulation: dot1q
+Operational Trunking Encapsulation: native
+Negotiation of Trunking: Off
+Access Mode VLAN: 20 (asa01)
+Trunking Native Mode VLAN: 1 (default)
+Voice VLAN: none
+Administrative private-vlan host-association: none
+Administrative private-vlan mapping: none
+Administrative private-vlan trunk native VLAN: none
+Administrative private-vlan trunk encapsulation: dot1q
+Administrative private-vlan trunk normal VLANs: none
+Administrative private-vlan trunk private VLANs: none
+Operational private-vlan: none
+Trunking VLANs Enabled: All
+Pruning VLANs Enabled: 2-1001
+Capture Mode Disabled
+Capture VLANs Allowed: ALL
+Protected: false
+Unknown unicast blocked: disabled
+Unknown multicast blocked: disabled
+Appliance trust: none
+برای حذف کردن هم :
+Switch(config)#no vlan 10
+نکته:برای اینکه ارتباط بین سوئیچ ها برقرار شود ما باید آن سوئیچ مورد نظر را بر روی پورتی که هست trunk برای آن قرار دهیم به آن tag هم گفته می شود
+Trunk و پرتکل های آن برای تگ گذاری:
+پرتکل ISL:
+-اختصاصی برای خود سیسکو هست
+-سایز هدر 26 بایت
+-قدیمی و بر روی سوئیچ های جدید پشتیابنی نمی شود
+پرتکل 802.1q:
+-پرتکل استاندارد
+-سایز هدر 4 بایت
+-vativ vlan 
+nativ vlan پیش فرض همان پورت 1 ما هست باید درون بحث ترانک در هر دو طرف همین پورت قرار بگیرد
+نکته:شما قبل از اینکه سوئیچ های خود را بر روی پورت ترانک قرار دهید باید پرتکل 802.1q را بر روی آن اجرا کنید اگر نداشت سوئیچ شما دستور زیر ولی پیش فرض سوئیچ های جدید دارند:
+Switch(config)#interface fastEthernet 0/5
+Switch(config-if)#switchport trunk encapsulation dot1q
+Switch(config-if)#switchport trunk ?
+  allowed  Set allowed VLAN characteristics when interface is in trunking mode
+  native   Set trunking native characteristics when interface is in trunking
+           mode
+Switch(config-if)#switchport mode trunk 
+
+Switch(config-if)#
+%LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/5, changed state to down
+
+%LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/5, changed state to up
+دستورات برای اینکه ترانک های خود راببینیم:
+Switch#show interfaces trunk 
+Port        Mode         Encapsulation  Status        Native vlan
+Fa0/5       on           802.1q         trunking      1
+
+Port        Vlans allowed on trunk
+Fa0/5       1-1005
+
+Port        Vlans allowed and active in management domain
+Fa0/5       1,10,20
+
+Port        Vlans in spanning tree forwarding state and not pruned
+Fa0/5       1,10,20
+Switch#show interfaces fastEthernet 0/5 switchport 
+Name: Fa0/5
+Switchport: Enabled
+Administrative Mode: trunk
+Operational Mode: trunk
+Administrative Trunking Encapsulation: dot1q
+Operational Trunking Encapsulation: dot1q
+Negotiation of Trunking: On
+Access Mode VLAN: 1 (default)
+Trunking Native Mode VLAN: 1 (default)
+Voice VLAN: none
+Administrative private-vlan host-association: none
+Administrative private-vlan mapping: none
+Administrative private-vlan trunk native VLAN: none
+Administrative private-vlan trunk encapsulation: dot1q
+Administrative private-vlan trunk normal VLANs: none
+Administrative private-vlan trunk private VLANs: none
+Operational private-vlan: none
+Trunking VLANs Enabled: All
+Pruning VLANs Enabled: 2-1001
+Capture Mode Disabled
+Capture VLANs Allowed: ALL
+Protected: false
+Unknown unicast blocked: disabled
+Unknown multicast blocked: disabled
+Appliance trust: none
+ما می توانیم nativ vlan خود را هم تغییر دهیم :
+Switch(config)#interface fastEthernet 0/5
+Switch(config-if)#switchport trunk native vlan 10
+Switch(config-if)#%SPANTREE-2-RECV_PVID_ERR: Received BPDU with inconsistent peer vlan id 1 on FastEthernet0/5 VLAN10.
+
+%SPANTREE-2-BLOCK_PVID_LOCAL: Blocking FastEthernet0/5 on VLAN0010. Inconsistent local vlan.
+
+شما حتا می توانید بگوید چه vlan ها اجازه رد شدن را دارند:
+Switch(config-if)#switchport trunk ?
+  allowed  Set allowed VLAN characteristics when interface is in trunking mode
+  native   Set trunking native characteristics when interface is in trunking
+           mode
+Switch(config-if)#switchport trunk allowed vlan 10,20
+Switch(config-if)#do show inter tru
+Port        Mode         Encapsulation  Status        Native vlan
+Fa0/5       on           802.1q         trunking      10
+
+Port        Vlans allowed on trunk
+Fa0/5       10,20
+
+Port        Vlans allowed and active in management domain
+Fa0/5       10,20
+
+Port        Vlans in spanning tree forwarding state and not pruned
+Fa0/5       10,20
+می توانید با استفاده اط add وی لنی که می خواهید را اضافه کنید می توانید با remov وی لن خود را حذف کنید و all یعنی همه
+Switch(config-if)#switchport trunk allowed vlan ?
+  WORD    VLAN IDs of the allowed VLANs when this port is in trunking mode
+  add     add VLANs to the current list
+  all     all VLANs
+  except  all VLANs except the following
+  none    no VLANs
+  remove  remove VLANs from the current list
+برای اینکه vlan های که ساخته اید را ببینید دستورات زیر:
+Switch(config)#interface vlan 10
+Switch(config-if)#
+%LINK-5-CHANGED: Interface Vlan10, changed state to up
+
+%LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan10, changed state to up
+نکته:اول باید انها را روشن کنید کد بالا بعد دستور پایین:
+Switch#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol 
+FastEthernet0/1        unassigned      YES manual up                    up 
+FastEthernet0/2        unassigned      YES manual up                    up 
+FastEthernet0/3        unassigned      YES manual up                    up 
+FastEthernet0/4        unassigned      YES manual up                    up 
+FastEthernet0/5        unassigned      YES manual up                    up 
+FastEthernet0/6        unassigned      YES manual down                  down 
+FastEthernet0/7        unassigned      YES manual down                  down 
+FastEthernet0/8        unassigned      YES manual down                  down 
+FastEthernet0/9        unassigned      YES manual down                  down 
+FastEthernet0/10       unassigned      YES manual down                  down 
+FastEthernet0/11       unassigned      YES manual down                  down 
+FastEthernet0/12       unassigned      YES manual down                  down 
+FastEthernet0/13       unassigned      YES manual down                  down 
+FastEthernet0/14       unassigned      YES manual down                  down 
+FastEthernet0/15       unassigned      YES manual down                  down 
+FastEthernet0/16       unassigned      YES manual down                  down 
+FastEthernet0/17       unassigned      YES manual down                  down 
+FastEthernet0/18       unassigned      YES manual down                  down 
+FastEthernet0/19       unassigned      YES manual down                  down 
+FastEthernet0/20       unassigned      YES manual down                  down 
+FastEthernet0/21       unassigned      YES manual down                  down 
+FastEthernet0/22       unassigned      YES manual down                  down 
+FastEthernet0/23       unassigned      YES manual down                  down 
+FastEthernet0/24       unassigned      YES manual down                  down 
+GigabitEthernet0/1     unassigned      YES manual down                  down 
+GigabitEthernet0/2     unassigned      YES manual down                  down 
+Vlan1                  unassigned      YES manual administratively down down 
+Vlan10                 unassigned      YES manual up                    up 
+Vlan20                 unassigned      YES manual up                    up
+
+نکته:در مود access سوئیچ ها دیگر نمی ایند بر روی بسته های اطلاعاتی ما تگ گذاری کنند و این مود ما وقتی بر روی سوئیچ قرار می دهیم که سوئیچ می خواهید مستقیم با یک device ارتباط بگیرد مثل کامپیوتر برای بهتر مفهوم به عکس access مراجعه کنید

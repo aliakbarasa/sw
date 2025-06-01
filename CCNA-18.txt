@@ -1,0 +1,245 @@
+Routing Information Protocol (RIP)
+پرتکل قدیمی هست
+IGP
+Distance Vector
+Version 1 , 2 , RIPng
+RIPv2 :
+ Multicast 224.0.0.9
+ Classless
+ Support VLSM (variable-length subnet masks)
+ Timer  30s : send advertisment (full routing updates)
+ 180s : hold time
+ 240s : remove from routing table
+ Administrative Distance : 120
+ Metric : hop count (max 15)
+ UDP 520
+ authentication 
+نکته:ما نمی توانیم برای هر یک از درگاه های روتر خود یک رنج شبکه بدهیم باید مجزا بدهیم
+دستورات:
+R-1:
+Router(config)#interface FAstEthernet 0/0
+Router(config-if)#ip address 192.168.12.1 255.255.255.0
+Router(config-if)#no shutdown 
+ما می توانیم به جای اینکه از سیستم ها استقاده کنیم برای اینکه شبکه و روتر های خود را تست کنیم می توانیم از loopback خود روتر ها استفاده کنیم که یک درگاه منطقی ایجاد می کنند:
+Router(config)#interface loopback ?
+  <0-2147483647>  Loopback interface number
+Router(config)#interface loopback 1
+Router(config-if)#ip address 10.1.0.1 255.255.255.0
+Router#show ip interface brief 
+Interface              IP-Address      OK? Method Status                Protocol
+ 
+FastEthernet0/0        192.168.12.1    YES manual up                    down
+ 
+FastEthernet0/1        unassigned      YES unset  administratively down down
+ 
+Loopback1              10.1.0.1        YES manual up                    up
+ 
+Vlan1                  unassigned      YES unset  administratively down down
+
+R2:
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ip address 192.168.12.2 255.255.255.0
+Router(config-if)#no shutdown 
+Router(config)#interface fastEthernet 0/1
+Router(config-if)#ip address 192.168.23.2 255.255.255.0
+Router(config-if)#no shutdown
+ 
+R-3:
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ip address 192.168.23.3 255.255.255.0
+Router(config-if)#no shutdown 
+Router(config-if)#interface fastEthernet 0/1
+Router(config-if)#ip address 192.168.34.3 255.255.255.0
+Router(config-if)#no shutdow
+
+R-4:
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ip address 192.168.34.4 255.255.255.0
+Router(config-if)#no shutdown
+ 
+Router(config)#interface loopback 1
+Router(config-if)#ip address 11.1.0.4 255.255.255.0
+
+######################################
+R-1:
+Router#show ip route 
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+     10.0.0.0/24 is subnetted, 1 subnets
+C       10.1.0.0 is directly connected, Loopback1
+C    192.168.12.0/24 is directly connected, FastEthernet0/0
+
+فعال کردن Routing Protocol:
+Router(config)#route rip 
+Router(config-router)#network 192.168.12.0
+Router(config-router)#network 10.1.0.0
+نکته:شما وقتی این پرتکل را اجرا می کنید پیش فرض بر روی V1 هست 
+
+R-2:
+Router(config)#router rip 
+Router(config-router)#network 192.168.12.0
+Router(config-router)#network 192.168.23.0
+Router#show ip route 
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+R    10.0.0.0/8 [120/1] via 192.168.12.1, 00:00:19, FastEthernet0/0
+C    192.168.12.0/24 is directly connected, FastEthernet0/0
+C    192.168.23.0/24 is directly connected, FastEthernet0/1
+
+R-3:
+Router(config)#router rip 
+Router(config-router)#network 192.168.23.0
+Router(config-router)#network 192.168.34.0
+
+R-4:
+Router(config-router)#network 192.168.34.0
+Router(config-router)#network 11.1.0.0
+
+الان همه روتر ها را مسیر های آنها را داریم
+برای اینکه ما rip خود را V2 کنیم دستور زیر را تایپ می نمائیم:
+R-1:
+Router(config)#router rip 
+Router(config-router)#version 2
+R-2:
+Router(config)#router rip 
+Router(config-router)#version 2
+R-3:
+Router(config)#router rip 
+Router(config-router)#version 2
+R-4:
+Router(config)#router rip 
+Router(config-router)#version 2
+
+نکته»زمانی هست شما چندین شبکه با رنج مشابه دارید که می خواهید همه را برای شما بک نام به بقیه روتر ها ارسال کند پس می توانید بهث خلاصه سازی را انجام دهید:
+R-4:
+Router(config-router)#no auto-summary 
+Router(config)#interface loopback 2
+Router(config-if)#ip address 11.2.0.4 255.255.255.0
+Router(config-if)#interface loopback 3
+Router(config-if)#ip address 11.3.0.4 255.255.255.0
+Router(config)#router rip 
+Router(config-router)#network 11.2.0.0
+Router(config-router)#network 11.3.0.0
+
+R-3:
+Router(config)#router rip 
+Router(config-router)#no auto-summary 
+
+R-2:
+Router(config)#router rip 
+Router(config-router)#no auto-summary 
+
+دستور show بهتر:
+R-1:
+Router#show ip protocols 
+Routing Protocol is "rip"
+Sending updates every 30 seconds, next due in 4 seconds
+Invalid after 180 seconds, hold down 180, flushed after 240
+Outgoing update filter list for all interfaces is not set
+Incoming update filter list for all interfaces is not set
+Redistributing: rip
+Default version control: send version 2, receive 2
+  Interface             Send  Recv  Triggered RIP  Key-chain
+  FastEthernet0/0       2     2     
+  Loopback1             2     2     
+Automatic network summarization is in effect
+Maximum path: 4
+Routing for Networks:
+	10.0.0.0
+	192.168.12.0
+Passive Interface(s):
+Routing Information Sources:
+	Gateway         Distance      Last Update
+	192.168.12.2         120      00:02:51
+Distance: (default is 120)
+
+حال می آیم یک روتر دیگر به روتر های خود اضافه می نمائیم:
+R-5:
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ip address 192.168.15.5 255.255.255.0
+Router(config-if)#no shutdown 
+Router(config-if)#interface fastEthernet 0/1
+Router(config-if)#ip address 192.168.45.5 255.255.255.0
+Router(config-if)#no shutdown 
+حال باید به درگاه متصل به خود آی پی دهیم
+R-4:
+Router(config)#interface fastEthernet 0/1
+Router(config-if)#ip address 192.168.45.4 255.255.255.0
+Router(config-if)#no shutdown 
+
+R-1:
+Router(config)#interface fastEthernet 0/1
+Router(config-if)#ip address 192.168.15.1 255.255.255.0
+Router(config-if)#no shutdown 
+حال پرتکل مسیر یابی خود را هم بر روی روتر جدید می زنیم
+R-5:
+Router(config)#router rip 
+Router(config-router)#network 192.168.15.0
+Router(config-router)#network 192.168.45.0
+Router(config-router)#no auto-summary 
+Router(config-router)#version 2
+بر روی روتر های دیگر خود ارتباط این پرتکل برای مسیر یابی را می زنیم
+R-1:
+Router(config)#router rip 
+Router(config-router)#network 192.168.15.0
+
+R-4:
+Router(config)#router rip 
+Router(config-router)#network 192.168.45.0
+می بینید که کلی شبکه برای خود دریافت کرده
+R-5:
+Router#show ip route 
+Codes: C - connected, S - static, I - IGRP, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, E - EGP
+       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area
+       * - candidate default, U - per-user static route, o - ODR
+       P - periodic downloaded static route
+
+Gateway of last resort is not set
+
+R    10.0.0.0/8 [120/1] via 192.168.15.1, 00:00:22, FastEthernet0/0
+     11.0.0.0/8 is variably subnetted, 4 subnets, 2 masks
+R       11.0.0.0/8 is possibly down, routing via 192.168.45.4, FastEthernet0/1
+R       11.1.0.0/24 [120/1] via 192.168.45.4, 00:00:16, FastEthernet0/1
+R       11.2.0.0/24 [120/1] via 192.168.45.4, 00:00:16, FastEthernet0/1
+R       11.3.0.0/24 [120/1] via 192.168.45.4, 00:00:16, FastEthernet0/1
+R    192.168.12.0/24 [120/1] via 192.168.15.1, 00:00:22, FastEthernet0/0
+C    192.168.15.0/24 is directly connected, FastEthernet0/0
+R    192.168.23.0/24 [120/2] via 192.168.15.1, 00:00:22, FastEthernet0/0
+                     [120/2] via 192.168.45.4, 00:00:16, FastEthernet0/1
+R    192.168.34.0/24 [120/1] via 192.168.45.4, 00:00:16, FastEthernet0/1
+C    192.168.45.0/24 is directly connected, FastEthernet0/1
+
+R-1:
+مس توانید مسیر های که دریافت شده است را ببینید:
+Router#show ip route rip 
+     11.0.0.0/8 is variably subnetted, 4 subnets, 2 masks
+R       11.0.0.0/8 is possibly down, routing via 192.168.15.5, 00:00:15, FastEthernet0/1
+R       11.1.0.0/24 [120/2] via 192.168.15.5, 00:00:10, FastEthernet0/1
+R       11.2.0.0/24 [120/2] via 192.168.15.5, 00:00:10, FastEthernet0/1
+R       11.3.0.0/24 [120/2] via 192.168.15.5, 00:00:10, FastEthernet0/1
+R    192.168.23.0/24 [120/1] via 192.168.12.2, 00:00:02, FastEthernet0/0
+R    192.168.34.0/24 [120/2] via 192.168.12.2, 00:00:02, FastEthernet0/0
+                     [120/2] via 192.168.15.5, 00:00:10, FastEthernet0/1
+R    192.168.45.0/24 [120/1] via 192.168.15.5, 00:00:10, FastEthernet0/1
+زمانی هست که شما یکی از درگاه های شما به روتر نمی خورد بلکه به کلاینت های شبکه می خورد برای اینکه دیگر آپدیت مسیر یابی بر روی آن درگاه ارسال نشود دستور زیر را بر روی درگاه مورد نظر می زنیم:
+Router(config)#router rip 
+Router(config-router)#passive-interface fastEthernet 0/1

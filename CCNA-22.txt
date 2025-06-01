@@ -1,0 +1,33 @@
+Protocol OSPF (Open Shortest Path First)
+Open standard (OSPF Version 2 in RFC 2328 - Version 3 in RFC 5340)
+IGP
+Link state یعنی روتر ما می داند به چه شبکه های متصل هست و روتر ها پشت آن به چه روتر های وصل هستند
+Link State Update (LSU)
+Link State Advertisements (LSA)
+Link State Database (LSDB)
+SPF (Shortest Path First)
+Area hierarchy
+Partial Update
+Summarization
+Multicast 224.0.0.5-224.0.0.6
+Authentication
+Administrative Distance 110
+Support VLSM
+قابلیت های این پرتکل
+Internal Router
+Backbone Router
+ABR (Area Border Router )
+ASBR (Autonomous System Boundary Router) 
+این پرتکل بسته های خود را به صورت زیر انجام می دهد:
+OSPF Packet :
+ Hello
+ DBD (DataBase Descriptor)
+ LSU (Link State Update )
+ LSR (Link State Request)
+ LSAck (Link State Acknowledgment) 
+انواع همبندی های این پرتکل
+OSPF Network Types
+ Point to Point (PTP)
+ Multi Access (Broadcast)
+ NBMA (non-broadcast multiple access)
+ Point to Multipoint (PTMP) 

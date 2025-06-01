@@ -1,0 +1,108 @@
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ipv6 address 2001:a:1:2::1/64
+Router(config-if)#no shutdown 
+برای پورت بعدی هم همینگونه
+Router(config-if)#interface fastEthernet 0/1
+Router(config-if)#ipv6 address 2001:b:1:2::/64 eui-64 
+Router(config-if)#no shutdown 
+Router#show ipv6 interface brief 
+FastEthernet0/0            [up/up]
+    FE80::201:C9FF:FEC9:B701
+    2001:A:1:2::1
+FastEthernet0/1            [up/up]
+    FE80::201:C9FF:FEC9:B702
+    2001:B:1:2:201:C9FF:FEC9:B702
+Vlan1                      [administratively down/down]
+    unassigned
+Router#show ipv6 interface fastEthernet 0/1
+FastEthernet0/1 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::201:C9FF:FEC9:B702
+  No Virtual link-local address(es):
+  Global unicast address(es):
+    2001:B:1:2:201:C9FF:FEC9:B702, subnet is 2001:B:1:2::/64 [EUI]
+  Joined group address(es):
+    FF02::1
+    FF02::1:FFC9:B702
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 millisecond
+############################################
+نکته:پیش فرض بر روی روتر های ادرس ورژن 6 فعال نیست و باید آن را فعال نمائیم:
+Router(config)#ipv6 unicast-routing
+############################################
+Router#show ipv6 interface fastEthernet 0/1
+FastEthernet0/1 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::201:C9FF:FEC9:B702
+  No Virtual link-local address(es):
+  Global unicast address(es):
+    2001:B:1:2:201:C9FF:FEC9:B702, subnet is 2001:B:1:2::/64 [EUI]
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::1:FFC9:B702
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 (unspecified)
+  ND advertised retransmit interval is 0 (unspecified)
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+شمابر ای اینکه pc های خود با هم ارتباط داشته باشند باید آدرس default getway ipv6 را از روی روتر خود بر دارید کلیت دستورات پایین هست:
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ipv6 address 2001:a:1:2::1/64
+Router(config-if)#no shutdown 
+Router(config-if)#interface fastEthernet 0/1
+Router(config-if)#ipv6 address 2001:b:1:2::/64 eui-64 
+Router(config)#ipv6 unicast-routing 
+----------------------------------
+Router#show ipv6 interface brief 
+FastEthernet0/0            [up/up]
+    FE80::2D0:BCFF:FEAB:6201
+    2001:A:1:2::
+FastEthernet0/1            [up/up]
+    FE80::2D0:BCFF:FEAB:6202
+    2001:B:1:2:2D0:BCFF:FEAB:6202
+Vlan1                      [administratively down/down]
+---------------------------------
+Router#show ipv6 interface fastEthernet 0/1
+FastEthernet0/1 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::2D0:BCFF:FEAB:6202
+  No Virtual link-local address(es):
+  Global unicast address(es):
+    2001:B:1:2:2D0:BCFF:FEAB:6202, subnet is 2001:B:1:2::/64 [EUI]
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::1:FFAB:6202
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 (unspecified)
+  ND advertised retransmit interval is 0 (unspecified)
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+---------------------------------
+Default getwat Ip v6
+Router#show ipv6 interface brief 
+FastEthernet0/0            [up/up]
+    FE80::2D0:BCFF:FEAB:6201
+    2001:A:1:2::
+FastEthernet0/1            [up/up]
+    FE80::2D0:BCFF:FEAB:6202
+  " 2001:B:1:2:2D0:BCFF:FEAB:6202"
+Vlan1                      [administratively down/down]
+برای سیستم های خود می آید ipv6 را یا به صورت خودکار ست می نمائید یا به صورت دستی
+توجه داشته باشید که حتما برای ارتباط بین سیستم ها حتما آدرس defaultgetway خود را بزنید

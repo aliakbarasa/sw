@@ -1,0 +1,270 @@
+Dynamic Trunking Protocol DTP
+Interface Mode:
+Access
+Trunk
+Dynamic
+حالت های قابل تنظیم Dynamic
+Desirable
+auto
+نکته:پرتکل Dynamic می آید براساس مودی که بر روی آن وجود دارد و پرتکل DTP می آید تشخیص می دهد این پئرت از سوئیچ باید بر روی چه مودی قرار بگیرد
+نکته:برای اینکه این پرتکل کار کند حتما باید سوئیج ها ترانک باشد بین آنها 
+برای اینکه انواع vtp را ببنید باید بروید وارد عکس vtp.png شوید
+نکته:مود کلاینت برای ما همه را می توانیم ببینیم vlan ها منظور هست و اینکه در مود transparent شما تنظیمات را نمی بینید و می توانید vlan ایجاد کنید ولی در client نمی توانید vlan ایجاد کنید
+باید همه سوئیچ ها نام یکسان داشته باشند
+switch 1
+Switch(config)#vtp domain ?
+  WORD  The ascii name for the VTP administrative domain.
+Switch(config)#vtp domain asa
+Changing VTP domain name from NULL to asa
+Switch(config)# vtp mode server 
+Device mode already VTP SERVER.
+Switch(config)# vtp version ?
+  <1-2>  Set the adminstrative domain VTP version number
+پیش فرض 2 هست و لازم نیست که آنرا تغییر داد 
+Switch(config)#vtp password asa1
+Setting device VLAN database password to asa1
+switch 2
+Switch#show vtp status 
+VTP Version                     : 2
+Configuration Revision          : 0
+Maximum VLANs supported locally : 255
+Number of existing VLANs        : 5
+VTP Operating Mode              : Server
+VTP Domain Name                 : asa
+VTP Pruning Mode                : Disabled
+VTP V2 Mode                     : Disabled
+VTP Traps Generation            : Disabled
+MD5 digest                      : 0x4D 0xCE 0x90 0x4D 0xD5 0x80 0xF6 0x46 
+Configuration last modified by 0.0.0.0 at 0-0-00 00:00:00
+Local updater ID is 0.0.0.0 (no valid interface found)
+Switch 2
+Switch(config)#vtp mode client 
+Setting device to VTP CLIENT mode
+Switch(config)#vtp password asa1
+Setting device VLAN database password to asa1
+switch 3
+Switch(config)#vtp mode transparent 
+Setting device to VTP TRANSPARENT mode.
+switch 4
+Switch(config)#vtp mode client 
+Setting device to VTP CLIENT mode
+Switch(config)#vtp password asa1
+Setting device VLAN database password to asa1
+-----------------------------------------------
+switch 1
+Switch(config)#vlan 10
+Switch(config-vlan)#name V-10
+Switch(config-vlan)#do show vtp st
+VTP Version                     : 2
+Configuration Revision          : 2
+Maximum VLANs supported locally : 255
+Number of existing VLANs        : 6
+VTP Operating Mode              : Server
+VTP Domain Name                 : asa
+VTP Pruning Mode                : Disabled
+VTP V2 Mode                     : Disabled
+VTP Traps Generation            : Disabled
+MD5 digest                      : 0xBD 0xD3 0xBB 0xDE 0x77 0xF6 0x19 0x2D 
+Configuration last modified by 0.0.0.0 at 3-2-93 23:23:43
+Local updater ID is 0.0.0.0 (no valid interface found
+switch 2
+Switch#show vlan brief 
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/3, Fa0/4, Fa0/5, Fa0/6
+                                                Fa0/7, Fa0/8, Fa0/9, Fa0/10
+                                                Fa0/11, Fa0/12, Fa0/13, Fa0/14
+                                                Fa0/15, Fa0/16, Fa0/17, Fa0/18
+                                                Fa0/19, Fa0/20, Fa0/21, Fa0/22
+                                                Fa0/23, Fa0/24, Gig0/1, Gig0/2
+10   V-10                             active    
+1002 fddi-default                     active    
+1003 token-ring-default               active    
+1004 fddinet-default                  active    
+1005 trnet-default                    active 
+Switch(config)#vlan 20
+VTP VLAN configuration not allowed when device is in CLIENT mode
+switch 3
+Switch#show vlan brief 
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/3, Fa0/4, Fa0/5, Fa0/6
+                                                Fa0/7, Fa0/8, Fa0/9, Fa0/10
+                                                Fa0/11, Fa0/12, Fa0/13, Fa0/14
+                                                Fa0/15, Fa0/16, Fa0/17, Fa0/18
+                                                Fa0/19, Fa0/20, Fa0/21, Fa0/22
+                                                Fa0/23, Fa0/24, Gig0/1, Gig0/2
+1002 fddi-default                     active    
+1003 token-ring-default               active    
+1004 fddinet-default                  active    
+1005 trnet-default                    active  
+چون به صورت لوکالی هست آپدیت نمی شود 
+Switch(config)#vlan 11
+Switch(config-vlan)#name V-11
+Switch#show vlan brief 
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/3, Fa0/4, Fa0/5, Fa0/6
+                                                Fa0/7, Fa0/8, Fa0/9, Fa0/10
+                                                Fa0/11, Fa0/12, Fa0/13, Fa0/14
+                                                Fa0/15, Fa0/16, Fa0/17, Fa0/18
+                                                Fa0/19, Fa0/20, Fa0/21, Fa0/22
+                                                Fa0/23, Fa0/24, Gig0/1, Gig0/2
+11   V-11                             active    
+1002 fddi-default                     active    
+1003 token-ring-default               active    
+1004 fddinet-default                  active    
+1005 trnet-default                    active 
+switch 4
+Switch#show vlan brief 
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/2, Fa0/3, Fa0/4, Fa0/5
+                                                Fa0/6, Fa0/7, Fa0/8, Fa0/9
+                                                Fa0/10, Fa0/11, Fa0/12, Fa0/13
+                                                Fa0/14, Fa0/15, Fa0/16, Fa0/17
+                                                Fa0/18, Fa0/19, Fa0/20, Fa0/21
+                                                Fa0/22, Fa0/23, Fa0/24, Gig0/1
+                                                Gig0/2
+10   V-10                             active    
+1002 fddi-default                     active    
+1003 token-ring-default               active    
+1004 fddinet-default                  active    
+1005 trnet-default                    active 
+نکته :اگر یوئیچ های ما پسورد برای آن نباشد اغیرات برای آن سوئیچ اعمال نمی شود
+و نکته دیگر زمانی اینکه سوئیچ دیگری برای خود می گیرید هیچ وقت آن را به شبکه متصل نکنید اول شما تنظیمات آن را ببینید و بعد متصل کنید
+نکته:شما اگر vtp نام آن را تغییر دهید Configuration Revision          : 0 می شود صفر و اگر به حالت transparent هم قرار دهید می شود 0
+دستورات:
+Switch(config)#interface fastEthernet 0/1
+Switch(config-if)#switchport mode dynamic ?
+  auto       Set trunking mode dynamic negotiation parameter to AUTO
+  desirable  Set trunking mode dynamic negotiation parameter to DESIRABLE
+Switch#show interfaces fastEthernet 0/1 switchport 
+Name: Fa0/1
+Switchport: Enabled
+Administrative Mode: dynamic auto
+Operational Mode: trunk
+Administrative Trunking Encapsulation: dot1q
+Operational Trunking Encapsulation: dot1q
+Negotiation of Trunking: On
+Access Mode VLAN: 1 (default)
+Trunking Native Mode VLAN: 1 (default)
+Voice VLAN: none
+Administrative private-vlan host-association: none
+Administrative private-vlan mapping: none
+Administrative private-vlan trunk native VLAN: none
+Administrative private-vlan trunk encapsulation: dot1q
+Administrative private-vlan trunk normal VLANs: none
+Administrative private-vlan trunk private VLANs: none
+Operational private-vlan: none
+Trunking VLANs Enabled: All
+Pruning VLANs Enabled: 2-1001
+Capture Mode Disabled
+Capture VLANs Allowed: ALL
+Protected: false
+Unknown unicast blocked: disabled
+Unknown multicast blocked: disabled
+Appliance trust: none
+نکته:زمانی می رسد یکی از پورت هیا شما به یکی از سوئیچ های غیر سیسکو متصل هست پس می توانید بسته های DTP را ببندید
+Switch(config)#interface fastEthernet 0/2
+Switch(config-if)#switchport nonegotiate 
+Command rejected: Conflict between 'nonegotiate' and 'dynamic' status.
+اگر دستور بالا را زدید و همچین ارور ی به شما داد یعنی پورت شما باید به حالت dynamic هست و باید به حالت trunk آن را ببرید
+Switch(config-if)#switchport mode trunk 
+Switch(config-if)#switchport nonegotiate 
+Vlan Trunking Protocol (VTP)
+trunk
+same domain
+server
+passwd
+version
+-------
+VTP mode
+sever
+client
+transparent
+off
+VTP Pruning
+نکته:پرتکل VTP برای مدیرت وی لن ها به کار می رود 
+دستورات:
+Switch#show vtp ?
+  counters  VTP statistics
+  password  VTP password
+  status    VTP domain status
+Switch#show vtp st
+Switch#show vtp status 
+VTP Version capable             : 1 to 2
+VTP version running             : 1
+VTP Domain Name                 : 
+VTP Pruning Mode                : Disabled
+VTP Traps Generation            : Disabled
+Device ID                       : 0001.C960.4C00
+Configuration last modified by 0.0.0.0 at 0-0-00 00:00:00
+Local updater ID is 0.0.0.0 (no valid interface found)
+
+Feature VLAN : 
+--------------
+VTP Operating Mode                : Server
+Maximum VLANs supported locally   : 255
+Number of existing VLANs          : 5
+Configuration Revision            : 0
+MD5 digest                        : 0x7D 0x5A 0xA6 0x0E 0x9A 0x72 0xA0 0x3A 
+                                    0xF0 0x58 0x10 0x6C 0x9C 0x0F 0xA0 0xF7 
+Switch(config)#vtp domain asa
+Changing VTP domain name from NULL to asa
+show vtp status 
+VTP Version capable             : 1 to 2
+VTP version running             : 1
+VTP Domain Name                 : asa
+VTP Pruning Mode                : Disabled
+VTP Traps Generation            : Disabled
+Device ID                       : 0001.C960.4C00
+Configuration last modified by 0.0.0.0 at 0-0-00 00:00:00
+Local updater ID is 0.0.0.0 (no valid interface found)
+
+Feature VLAN : 
+--------------
+VTP Operating Mode                : Server
+Maximum VLANs supported locally   : 255
+Number of existing VLANs          : 5
+Configuration Revision            : 0
+MD5 digest                        : 0x4D 0xCE 0x90 0x4D 0xD5 0x80 0xF6 0x46 
+                                    0xD8 0xC8 0xA6 0x99 0xCC 0x8A 0xE2 0x85 
+Switch#show vtp status 
+VTP Version capable             : 1 to 2
+VTP version running             : 1
+VTP Domain Name                 : asa
+VTP Pruning Mode                : Disabled
+VTP Traps Generation            : Disabled
+Device ID                       : 0001.C960.4C00
+Configuration last modified by 0.0.0.0 at 0-0-00 00:00:00
+Local updater ID is 0.0.0.0 (no valid interface found)
+
+Feature VLAN : 
+--------------
+VTP Operating Mode                : Server
+Maximum VLANs supported locally   : 255
+Number of existing VLANs          : 5
+Configuration Revision            : 0
+MD5 digest                        : 0x4D 0xCE 0x90 0x4D 0xD5 0x80 0xF6 0x46 
+                                    0xD8 0xC8 0xA6 0x99 0xCC 0x8A 0xE2 0x85
+SW-01:
+Switch(config)#vtp mode server 
+Device mode already VTP SERVER.
+SW-02:
+Switch(config)#vtp mode client 
+Setting device to VTP CLIENT mode.
+SW-03:
+Switch(config)#vtp mode transparent 
+Setting device to VTP TRANSPARENT mode.
+SW-04:
+Switch(config)#vtp mode client 
+Setting device to VTP CLIENT mode.
+------
+Switch(config)#vtp password 123
+Setting device VLAN database password to 123
+نکته:شما وقتی vtp passwd را بر روی سوئیچ های خود فعال کنید و بزنید می توانند تنظیمات دیگر سوئیچ ها را دریافت نمایند

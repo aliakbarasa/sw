@@ -1,0 +1,52 @@
+پرتکل مسیر یابی  EIGRP
+IGP
+Advanced Distance Vector (hybrid)
+IGRP
+EIGRP :
+ Fast convergence (DUAL algorithm)
+ Multicast 224.0.0.10
+ Support VLSM (variable-length subnet masks)
+ partial update
+ Administrative Distance : 90
+ Metric : k-value
+ Authentication (MD5)
+ Summarization (auto,manual)
+ Unequal load balancing 
+این پرتکل می آید با اطراف خود همسایه یگی ایجاد می کند که بسته ای که ارسال می کند حاوی اطلاعات زیر هست و اینکه بعد از اینکه همسایه گی ایجاد کردن می آیند اطلاعات را با هم به اشتراک می گذارند
+ Hello
+ Update
+ Query
+ Replay
+ Acknowledgment 
+این پرتکل حاوی چند جدول هست:
+Table :
+ Neighbor table همسایگی
+ Routing table ازازلاعات مسیر یابی
+ Topology table بکاپ های روتیک های ما هست
+این پرتکل metric های که استفاده می کند:
+K-Values :
+ Bandwidth K1=1
+ Load K2=0
+ Delay K3=1
+ Reliability K4=0
+ MTU K5=0 
+این پرتکل می آید با الگوریتم DUAL بهترین مسیر و سریغ ترین مسیر برای رسیدن به مقصد را امنتخاب می کند
+K-Values :
+ Successor یهترین مسیر
+ Feasible Successor بک آپ بهترین مسیر
+ Feasible Distance (FD) همان metric
+ Reported Distance (RD) به مقدار next hop ما از مبدا تا مقصد  برای رسیدن اطلاعات هست
+نکته:زمانی یک Router می تواند FS شود که RD آن Router از FD مسیر Successor کمتر باشد
+دستورات:
+R1(config)#router eigrp 100
+R1(config-router)#no auto-summary
+R1(config-router)# network 192.168.1.0
+R1(config-router)#passive-interface fastethernet 0/0
+R1#show ip protocol
+R1#show ip route
+R1#show ip route eigrp
+R1#show ip eigrp topology
+R1#show ip eigrp topology all-link
+R1#show ip eigrp neighbor
+R1#show interfaces fast 0/0
+

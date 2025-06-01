@@ -1,0 +1,117 @@
+OSPF v3
+R-1:
+R-1(config)#ipv6 unicast-routing 
+R-1(config)#interface gigabitEthernet 0/1
+R-1(config-if)#ipv6 address 2001:1212:1212:1212::/64 eui-64 
+R-1(config-if)#no shutdown 
+
+R-1(config)#interface loopback 1
+R-1(config-if)#ipv6 address 2001:1111:1111:1111::1/64
+R-1(config-if)#no shutdown 
+
+R-2:
+R-2(config)#ipv6 unicast-routing 
+R-2(config)#interface gigabitEthernet 0/0
+R-2(config-if)#ipv6 address 2001:1212:1212:1212::/64 eui-64 
+R-2(config-if)#no shutdown 
+
+R-2(config)#interface serial 0/3/0
+R-2(config-if)#ipv6 address 2001:2323:2323:2323::/64 eui-64 
+R-2(config-if)#no shutdown 
+
+R-2(config)#interface loopback 1
+R-2(config-if)#ipv6 address 2001:2222:2222:2222::2/64
+R-2(config-if)#no shutdown 
+
+R-3:
+R-3(config)#ipv6 unicast-routing 
+R-3(config)#interface gigabitEthernet 0/0
+R-3(config-if)#ipv6 address 2001:3434:3434:3434::/64 eui-64 
+R-3(config-if)#no shutdown 
+
+R-3(config)#interface serial 0/2/0
+R-3(config-if)#ipv6 address 2001:2323:2323:2323::/64 eui-64 
+R-3(config-if)#no shutdown 
+
+R-3(config)#interface loopback 1
+R-3(config-if)#ipv6 address 2001:3333:3333:3333::3/64
+R-3(config-if)#no shutdown 
+
+
+R-4:
+R-4(config)#ipv6 unicast-routing 
+R-4(config)#interface gigabitEthernet 0/0
+R-4(config-if)#ipv6 address 2001:3434:3434:3434::/64 eui-64
+R-4(config-if)#no shutdown 
+
+R-4(config)#interface loopback 1
+R-4(config-if)#ipv6 address 2001:4444:4444:4444::4/64 
+R-4(config-if)#no shutdown 
+
+R-1:
+R-1(config)#ipv6 router ospf 1
+نکته:%OSPFv3-4-NORTRID: OSPFv3 process 1 could not pick a router-id,please configure manually
+باید برای آن یک روتر ipv4 بزاریم
+R-1(config-rtr)#router-id 1.1.1.1
+اینجا دیگر لازم نیست که برای آن ها شبکه ها را معرغی کنیم بلکه می توانیم برویم وارد پورت های مورد نظر شده و آنها را تعریف نمائیم:
+R-1(config)#interface gigabitEthernet 0/0
+R-1(config-if)#ipv6 ospf 1 area 0
+
+R-1(config)#interface loopback 1
+R-1(config-if)#ipv6 ospf 1 area 0
+
+R-2:
+R-2(config)#ipv6 router ospf 1
+%OSPFv3-4-NORTRID: OSPFv3 process 1 could not pick a router-id,please configure manually
+R-2(config-rtr)#router-id 2.2.2.2
+
+R-2(config)#interface gigabitEthernet 0/0
+R-2(config-if)#ipv6 ospf 1 area 0
+22:38:09: %OSPFv3-5-ADJCHG: Process 1, Nbr 1.1.1.1 on GigabitEthernet0/0 from LOADING to FULL, Loading Done
+
+R-2(config)#interface loopback 1
+R-2(config-if)#ipv6 ospf 1 area 0
+
+R-2(config)#interface serial 0/3/0
+R-2(config-if)#ipv6 ospf 1 area 1
+
+
+R-3:
+
+R-3(config)#ipv6 router ospf 1
+%OSPFv3-4-NORTRID: OSPFv3 process 1 could not pick a router-id,please configure manually
+R-3(config-rtr)#router-id 3.3.3.3
+R-3(config)#interface serial 0/2/0 
+R-3(config-if)#ipv6 ospf 1 area 1
+22:43:11: %OSPFv3-5-ADJCHG: Process 1, Nbr 2.2.2.2 on Serial0/2/0 from LOADING to FULL, Loading Done
+
+R-3(config)#interface gigabitEthernet 0/0
+R-3(config-if)#ipv6 ospf 1 area 1
+
+R-3(config)#interface loopback 1
+R-3(config-if)#ipv6 ospf 1 area 1
+
+R-4:
+R-4(config)#ipv6 router ospf 1
+%OSPFv3-4-NORTRID: OSPFv3 process 1 could not pick a router-id,please configure manually
+R-4(config-rtr)#router-id 4.4.4.4
+
+R-4(config)#interface gigabitEthernet 0/0
+R-4(config-if)#ipv6 ospf 1 area 1
+22:48:02: %OSPFv3-5-ADJCHG: Process 1, Nbr 3.3.3.3 on GigabitEthernet0/0 from LOADING to FULL, Loading Done
+
+R-4(config)#interface loopback 1
+R-4(config-if)#ipv6 ospf 1 area 1
+################################
+All Code:
+Router(config)#ipv6 unicast routing
+Router(config)#ipv6 router ospf 1
+Router(config-router)#router-id 1.1.1.1
+Router(config-if)#ipv6 ospf 1 area 0
+Router#show ipv6 ospf neighbor
+Router#show ipv6 ospf interface
+Router#show ipv6 ospf database
+Router#show ipv6 ospf
+Router#show ipv6 protocol
+Router#show ipv6 route
+Router#show ipv6 route ospf 
